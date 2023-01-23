@@ -7,9 +7,15 @@ from sqlalchemy.sql.expression import BinaryExpression
 
 from .settings import settings
 
+tz = gettz(settings.timezone)
+
 
 def today() -> datetime.datetime:
-    return _today(gettz(settings.timezone))
+    return _today(tz)
+
+
+def now() -> datetime.datetime:
+    return datetime.datetime.now(tz)
 
 
 def next_mo() -> datetime.datetime:

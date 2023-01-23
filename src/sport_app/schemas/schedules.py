@@ -58,3 +58,10 @@ class ScheduleClass(Class):
 class ScheduleRecord(BaseModel):
     Class: ScheduleClass
     date: datetime.datetime
+
+    def __eq__(self, other):
+        return self.Class.id == other.Class.id \
+                and self.date == other.date
+
+    def __repr__(self):
+        return f"Class.id={self.Class.id}, date={self.date}"
