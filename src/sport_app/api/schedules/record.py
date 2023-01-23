@@ -5,8 +5,8 @@ from fastapi import (
     Response
 )
 
-from ...schemas import ScheduleRecord, ScheduleRecordCreate
-from ...services.schedule import ScheduleService
+from ...schemas import SchemaRecord, SchemaRecordCreate
+from ...services.records import RecordService
 
 
 router = APIRouter(
@@ -17,10 +17,10 @@ router = APIRouter(
 
 @router.post(
     '/',
-    response_model=ScheduleRecord
+    response_model=SchemaRecord
 )
 def create_record(
-    record_data: ScheduleRecordCreate,
-    schedule_service: ScheduleService = Depends()
+    record_data: SchemaRecordCreate,
+    record_service: RecordService = Depends()
 ):
-    return schedule_service.create_record(record_data)
+    return record_service.create_record(record_data)

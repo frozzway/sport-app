@@ -6,12 +6,12 @@ from fastapi import (
 )
 
 from ...schemas import (
-    ScheduleSchema,
-    ScheduleSchemaCreate,
-    ScheduleSchemaUpdate,
-    ScheduleRecord
+    Schema,
+    SchemaCreate,
+    SchemaUpdate,
+    SchemaRecord
 )
-from ...services.schedule import ScheduleService
+from ...services.schedule import SchemaService
 
 
 router = APIRouter(
@@ -22,46 +22,46 @@ router = APIRouter(
 
 @router.post(
     '/',
-    response_model=ScheduleSchema
+    response_model=Schema
 )
 def create_schema(
-    schema_data: ScheduleSchemaCreate,
-    schedule_service: ScheduleService = Depends()
+    schema_data: SchemaCreate,
+    schema_service: SchemaService = Depends()
 ):
-    return schedule_service.create_schema(schema_data)
+    return schema_service.create_schema(schema_data)
 
 
 @router.get(
     '/',
-    response_model=list[ScheduleSchema]
+    response_model=list[Schema]
 )
 def get_schemas(
-    schedule_service: ScheduleService = Depends()
+    schema_service: SchemaService = Depends()
 ):
-    return schedule_service.get_many_schemas()
+    return schema_service.get_many_schemas()
 
 
 @router.put(
     '/{schema_id}',
-    response_model=ScheduleSchema
+    response_model=Schema
 )
 def update_schema(
     schema_id: int,
-    schema_data: ScheduleSchemaUpdate,
-    schedule_service: ScheduleService = Depends(),
+    schema_data: SchemaUpdate,
+    schema_service: SchemaService = Depends(),
 ):
-    return schedule_service.update_schema(schema_id, schema_data)
+    return schema_service.update_schema(schema_id, schema_data)
 
 
 @router.get(
     '/{schema_id}/records',
-    response_model=list[ScheduleRecord]
+    response_model=list[SchemaRecord]
 )
 def get_records_within_schema(
     schema_id: int,
-    schedule_service: ScheduleService = Depends()
+    schema_service: SchemaService = Depends()
 ):
-    return schedule_service.get_records_in_schema(schema_id)
+    return schema_service.get_schema_records(schema_id)
 
 
 @router.post(
@@ -72,9 +72,9 @@ def get_records_within_schema(
 def include_records_in_schema(
     schema_id: int,
     records: list[int],
-    schedule_service: ScheduleService = Depends()
+    schema_service: SchemaService = Depends()
 ):
-    return schedule_service.include_records_in_schema(schema_id, records)
+    return schema_service.include_records_in_schema(schema_id, records)
 
 
 @router.delete(
@@ -85,7 +85,7 @@ def include_records_in_schema(
 def exclude_records_from_schema(
     schema_id: int,
     records: list[int],
-    schedule_service: ScheduleService = Depends()
+    schema_service: SchemaService = Depends()
 ):
-    schedule_service.exclude_records_from_schema(schema_id, records)
+    schema_service.exclude_records_from_schema(schema_id, records)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

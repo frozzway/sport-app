@@ -14,10 +14,10 @@ def class_to_schema(self) -> Class:
     return Class(**schema)
 
 
-def record_to_schema(self) -> ScheduleRecord:
+def record_to_schema(self) -> SchemaRecord:
     nested_models = {
         "Class": self.class_.to_schema()
     }
     schema = as_dict(self)
     schema.update(nested_models)
-    return ScheduleRecord(**schema)
+    return SchemaRecord(**schema)

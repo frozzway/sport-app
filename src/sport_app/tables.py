@@ -4,21 +4,22 @@ from sqlalchemy import (
     Integer,
     Numeric,
     ForeignKey,
-    DateTime, Time,
+    DateTime,
+    Time,
     Boolean,
     JSON,
     Table,
 )
 
-from .constructor import constructor
-
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
+from .constructor import constructor
 from .schemas import (
     class_to_schema,
     record_to_schema
 )
+from .utils import *
 
 
 Base = declarative_base(constructor=constructor)
@@ -57,11 +58,12 @@ class Class(Base):
     paid = Column(Boolean)
     place_limit = Column(Integer, nullable=True)
     registration_opens = Column(Integer, nullable=True)
+    available_registration = Column(Boolean, default=False)
 
     # category = relationship("Category", back_populates="classes")
     # placement = relationship("Placement", back_populates="classes")
     instructor_ = relationship("Instructor", back_populates="classes")
-    schedule_records = relationship("ScheduleRecord", back_populates="class_")
+    schema_records = relationship("SchemaRecord", back_populates="class_")
 
     to_schema = class_to_schema
 
@@ -70,12 +72,12 @@ schedule_schema_record = Table(
     "schedule_schema_record",
     Base.metadata,
     Column("schedule_schema", ForeignKey("schedule_schema.id", ondelete="CASCADE"), primary_key=True),
-    Column("schedule_record", ForeignKey("schedule_record.id", ondelete="CASCADE"), primary_key=True),
+    Column("schema_record", ForeignKey("schema_record.id", ondelete="CASCADE"), primary_key=True),
 )
 
 
-class ScheduleRecord(Base):
-    __tablename__ = "schedule_record"
+class SchemaRecord(Base):
+    __tablename__ = "schema_record"
 
     id = Column(Integer, primary_key=True)
     week_day = Column(Integer)
@@ -83,9 +85,13 @@ class ScheduleRecord(Base):
     duration = Column(Integer)
     Class = Column(Integer, ForeignKey("class.id", ondelete="CASCADE"))
 
-    class_ = relationship("Class", back_populates="schedule_records")
+    class_ = relationship("Class", back_populates="schema_records")
 
     to_schema = record_to_schema
+
+    @property
+    def date(self):
+        return calculate_date(self.week_day, self.day_time)
 
 
 class ScheduleSchema(Base):
@@ -96,7 +102,7 @@ class ScheduleSchema(Base):
     active = Column(Boolean, default=False)
     to_be_active_from = Column(DateTime(timezone=True), nullable=True)
 
-    schedule_records = relationship("ScheduleRecord", secondary=schedule_schema_record)
+    records = relationship("SchemaRecord", secondary=schedule_schema_record)
 
 
 class Client(Base):
@@ -114,6 +120,4 @@ class BookedClasses(Base):
     id = Column(Integer, primary_key=True)
     client_id = Column(Integer, ForeignKey("client.id", ondelete="CASCADE"))
     class_id = Column(Integer, ForeignKey("class.id", ondelete="CASCADE"))
-    date = Column(DateTime)
-
-
+    date = Column(DateTime(timezone=True))

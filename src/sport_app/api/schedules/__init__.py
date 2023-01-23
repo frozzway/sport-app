@@ -2,7 +2,8 @@ from fastapi import APIRouter
 
 from . import (
     schema,
-    record
+    record,
+    schedule
 )
 
 schedule_router = APIRouter(
@@ -10,3 +11,4 @@ schedule_router = APIRouter(
 )
 schedule_router.include_router(schema.router)
 schedule_router.include_router(record.router)
+schedule_router.include_router(schedule.router)

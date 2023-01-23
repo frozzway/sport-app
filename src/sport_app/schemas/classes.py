@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import (
     BaseModel,
     Field
@@ -54,6 +56,7 @@ class BaseClass(BaseModel):
     paid: bool
     place_limit: int = None
     registration_opens: int = None
+    available_registration: Optional[bool]
 
 
 class CreateClass(BaseClass):
