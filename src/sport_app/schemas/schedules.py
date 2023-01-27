@@ -50,14 +50,11 @@ class SchemaRecord(SchemaRecordBase):
         orm_mode: True
 
 
-class ScheduleClass(Class):
+class ScheduleRecord(BaseModel):
+    Class: Class
+    date: datetime.datetime
     registration_opens_at: Optional[datetime.datetime]
     places_available: Optional[int]
-
-
-class ScheduleRecord(BaseModel):
-    Class: ScheduleClass
-    date: datetime.datetime
 
     def __eq__(self, other):
         return self.Class.id == other.Class.id \

@@ -44,16 +44,14 @@ class ScheduleRow(NamedTuple):
         if class_.registration_opens and date >= utils.today():
             if place_limit:
                 places_available = place_limit - booked_places
-            pre_days = rd.relativedelta(days=class_.registration_opens, hour=16)  # days before registration opens
+            pre_days = rd.relativedelta(days=class_.registration_opens, hour=16)  # дней до открытия регистрации
             registration_opens_at = date - pre_days
 
         return schemas.ScheduleRecord(
-                Class=schemas.ScheduleClass(
-                    **class_.to_schema().dict(),
-                    places_available=places_available,
-                    registration_opens_at=registration_opens_at
-                ),
-                date=date
+                Class=class_.to_schema(),
+                places_available=places_available,
+                registration_opens_at=registration_opens_at,
+                date=date,
             )
 
     def __eq__(self, other):
@@ -72,7 +70,10 @@ class ScheduleService:
     def _validate_active_schema(self):
         pass
 
-    def _get_grid(self, schema: tables.ScheduleSchema) -> ScheduleDict:
+    def _get_grid(
+        self,
+        schema: tables.ScheduleSchema
+    ) -> ScheduleDict:
         SSR = alias(tables.schedule_schema_record)
         stmt = (
             select(tables.Class, tables.SchemaRecord)
@@ -82,30 +83,30 @@ class ScheduleService:
         )
         grid = dict()
         for row in self.session.execute(stmt).all():
-            schedule_class: ScheduleClass = (row[0].id, row[1].date)
-            schedule_record: schemas.ScheduleRecord = ScheduleRow(row[0], row[1]).to_schema()
+            schedule_class: ScheduleClass = (row.Class.id, row.SchemaRecord.date)
+            schedule_record: schemas.ScheduleRecord = ScheduleRow(row.Class, row.SchemaRecord).to_schema()
             grid[schedule_class] = schedule_record
         return grid
 
     @staticmethod
-    def _prolong_grid(grid: ScheduleDict):
+    def _prolong_grid(grid: ScheduleDict) -> ScheduleDict:
         week = rd.relativedelta(days=7)
-        nw_grid = {}
+        prolonged_grid = {}
         for k, value in grid.items():
             schedule_class: ScheduleClass = (k[0], k[1] + week)
             schedule_record: schemas.ScheduleRecord = deepcopy(value)
-            schedule_record.Class.registration_opens_at += week
+            schedule_record.registration_opens_at += week
             schedule_record.date += week
-            nw_grid[schedule_class] = schedule_record
-        grid.update(nw_grid)
+            prolonged_grid[schedule_class] = schedule_record
+        return prolonged_grid
 
     def _count_booked_classes(
         self,
         schema: tables.ScheduleSchema
     ) -> ScheduleDict:
-        """Возвращает те занятия, на которые записывались клиенты (с подсчетом кол-ва записавшихся).
-           Возвращает те занятия, на которые открыта запись и никто еще не записался.
-           Начиная с now()
+        """
+            Возвращает те занятия, на которые записывались клиенты (с подсчетом кол-ва записавшихся).
+            Начиная с now()
         """
         BC, SSR = alias(tables.BookedClasses), alias(tables.schedule_schema_record)
         class_date = utils.calc_date_sql(tables.SchemaRecord.week_day, tables.SchemaRecord.day_time)
@@ -153,7 +154,7 @@ class ScheduleService:
         response.update(counted_classes)
 
         if next_week_schema:
-            grid = self._get_grid(next_week_schema)
+            grid = self._get_grid(next_week_schema)  # ошибка: возвратит даты на этой неделе. Воспользоваться prolong_grid
             response.update(grid)
             counted_classes = self._count_booked_classes(next_week_schema)
             response.update(counted_classes)

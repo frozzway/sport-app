@@ -80,7 +80,7 @@ class SchemaService:
         schema = tables.ScheduleSchema(
             **schema_data.dict()
         )
-        active_schema = self.active_schema()
+        active_schema = self.active_schema
         if not active_schema:
             schema.active = True
         elif schema_data.active:
@@ -97,10 +97,10 @@ class SchemaService:
     ) -> tables.ScheduleSchema:
         schema = self._get_schema(schema_id)
         if schema_data.active:
-            active_schema = self.active_schema()
+            active_schema = self.active_schema
             active_schema.active = False
         if schema_data.activate_next_week:
-            next_week_schema = self.next_week_schema()
+            next_week_schema = self.next_week_schema
             next_week_schema.to_be_active_from = None
             schema.to_be_active_from = utils.next_mo()
         for field, value in schema_data:
@@ -123,14 +123,13 @@ class SchemaService:
     ) -> list[int]:
         schema = self._get_schema(schema_id)
         records = set((r.id for r in schema.records))
-        records.update(records_to_include)
-        existing_records_to_include = (
+        existing_records = (
             self.session
             .query(tables.SchemaRecord)
-            .filter(tables.SchemaRecord.id.in_(records))
             .all()
         )
-        schema.records = existing_records_to_include
+        records.update((r for r in records_to_include if r in existing_records))
+        schema.records = records
         self.session.commit()
         return [r.id for r in schema.records]
 
