@@ -4,7 +4,7 @@
     по имени атрибута объекта.
 
         Например:
-            category = tables.Category(id={"id": 3, "other": "extra"})
+            category = tables.Category(id={"id": 3, "other": "not_relevant"})
         эквивалентен:
             category = tables.Category(id=3)
 """
