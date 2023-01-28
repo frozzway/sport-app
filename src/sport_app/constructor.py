@@ -1,12 +1,12 @@
 """
     Custom-made вариант конструктора ORM-объектов для SQLAlchemy.
-    Добавляет возможность передавать объект типа dict в качестве значения, в котором искомое значение достаётся
-    по имени атрибута объекта.
+    Добавляет возможность передавать объект типа dict в качестве значения ForeignKey поля,
+    в котором искомое значение достаётся по имени атрибута объекта.
 
         Например:
-            category = tables.Category(id={"id": 3, "other": "not_relevant"})
+            seller = tables.Seller(user={"id": 3, "other": "not_relevant"})
         эквивалентен:
-            category = tables.Category(id=3)
+            seller = tables.Seller(user=3)
 """
 
 
