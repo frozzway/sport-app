@@ -1,0 +1,101 @@
+from typing import (
+    Optional
+)
+
+from fastapi import (
+    Depends,
+    HTTPException,
+    status
+)
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
+
+from ...database import get_session
+
+from ... import (
+    tables,
+    schemas
+)
+
+
+class InstructorService:
+    exception = HTTPException(
+        status_code=status.HTTP_409_CONFLICT,
+        detail='Номер телефона уже имеется в базе'
+    )
+
+    def __init__(
+        self,
+        session: Session = Depends(get_session)
+    ):
+        self.session = session
+
+    def _get(
+        self,
+        instructor_id: int
+    ) -> Optional[tables.Instructor]:
+        instructor = (
+            self.session
+            .query(tables.Instructor)
+            .filter(tables.Instructor.id == instructor_id)
+            .first()
+        )
+        if not instructor:
+            raise HTTPException(status.HTTP_404_NOT_FOUND)
+        return instructor
+
+    def get(
+        self,
+        instructor_id: int
+    ) -> tables.Instructor:
+        instructor = self._get(instructor_id)
+        return instructor
+
+    def get_many(
+        self
+    ) -> list[tables.Instructor]:
+        instructors = (
+            self.session
+            .query(tables.Instructor)
+            .all()
+        )
+        return instructors
+
+    def create(
+        self,
+        instructor_data: schemas.InstructorCreate
+    ) -> tables.Instructor:
+        instructor = tables.Instructor(
+            **instructor_data.dict()
+        )
+        try:
+            self.session.add(instructor)
+            self.session.commit()
+        except IntegrityError:
+            self.session.rollback()
+            raise InstructorService.exception from None
+        return instructor
+
+    def delete(
+        self,
+        instructor_id: int
+    ):
+        instructor = self._get(instructor_id)
+        self.session.delete(instructor)
+        self.session.commit()
+        return
+
+    def update(
+        self,
+        instructor_id: int,
+        instructor_data: schemas.InstructorUpdate
+    ) -> tables.Instructor:
+        instructor = self._get(instructor_id)
+        for field, value in instructor_data:
+            setattr(instructor, field, value)
+        try:
+            self.session.commit()
+        except IntegrityError:
+            self.session.rollback()
+            raise InstructorService.exception from None
+        return instructor
