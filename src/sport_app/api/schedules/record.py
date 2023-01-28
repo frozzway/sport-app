@@ -1,12 +1,10 @@
 from fastapi import (
     APIRouter,
-    Depends,
-    status,
-    Response
+    Depends
 )
 
 from ...schemas import SchemaRecord, SchemaRecordCreate
-from ...services.records import RecordService
+from ...services import RecordService
 
 
 router = APIRouter(

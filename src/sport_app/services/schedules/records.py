@@ -15,9 +15,9 @@ from sqlalchemy.orm import Session
 from sqlalchemy import delete, select, func
 from sqlalchemy.sql import alias, or_, and_
 
-from ..database import get_session
+from sport_app.database import get_session
 
-from .. import (
+from sport_app import (
     tables,
     schemas,
     utils

@@ -11,7 +11,7 @@ from ...schemas import (
     SchemaUpdate,
     SchemaRecord
 )
-from ...services.schedule import SchemaService
+from ...services import SchemaService
 
 
 router = APIRouter(

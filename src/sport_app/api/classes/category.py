@@ -6,7 +6,7 @@ from fastapi import (
 )
 
 from ...schemas import Category
-from ...services.classes import CategoryService
+from ...services import CategoryService
 
 
 router = APIRouter(

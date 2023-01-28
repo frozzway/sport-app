@@ -5,10 +5,12 @@ from fastapi import (
     Response
 )
 
-from ...schemas import Instructor
-from ...schemas import InstructorCreate
-from ...schemas import InstructorUpdate
-from ...services.classes import InstructorService
+from ...schemas import (
+    Instructor,
+    InstructorCreate,
+    InstructorUpdate
+)
+from ...services import InstructorService
 
 
 router = APIRouter(

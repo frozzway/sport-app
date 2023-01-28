@@ -1,12 +1,10 @@
 from fastapi import (
     APIRouter,
-    Depends,
-    status,
-    Response
+    Depends
 )
 
 from ...schemas import ScheduleRecord
-from ...services.schedule import ScheduleService
+from ...services import ScheduleService
 
 
 router = APIRouter(

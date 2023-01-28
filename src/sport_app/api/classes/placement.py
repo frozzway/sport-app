@@ -6,7 +6,7 @@ from fastapi import (
 )
 
 from ...schemas import Placement
-from ...services.classes import PlacementService
+from ...services import PlacementService
 
 
 router = APIRouter(
