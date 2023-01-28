@@ -1,5 +1,14 @@
-# **kwargs e.x:
-# cls_ e.x : Class
+"""
+    Custom-made вариант конструктора ORM-объектов для SQLAlchemy.
+    Добавляет возможность передавать объект типа dict в качестве значения, в котором искомое значение достаётся
+    по имени атрибута объекта.
+
+        Например:
+            category = tables.Category(id={"id": 3, "other": "extra"})
+        эквивалентен:
+            category = tables.Category(id=3)
+"""
+
 
 def constructor(self, **kwargs):
     cls_ = type(self)
