@@ -14,7 +14,7 @@ from ...database import get_session
 
 from ... import (
     tables,
-    schemas
+    models
 )
 
 
@@ -49,7 +49,7 @@ class PlacementService:
 
     def create(
         self,
-        data: schemas.Placement
+        data: models.Placement
     ) -> tables.Placement:
         placement = tables.Placement(
             **data.dict()
@@ -65,7 +65,7 @@ class PlacementService:
     def update(
         self,
         name: str,
-        data: schemas.Placement
+        data: models.Placement
     ) -> tables.Placement:
         placement = self._get(name)
         for field, value in data:

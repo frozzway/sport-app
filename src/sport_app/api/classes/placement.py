@@ -5,7 +5,7 @@ from fastapi import (
     Response
 )
 
-from ...schemas import Placement
+from ...models import Placement
 from ...services import PlacementService
 
 

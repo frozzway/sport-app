@@ -14,7 +14,7 @@ from ...database import get_session
 
 from ... import (
     tables,
-    schemas
+    models
 )
 
 
@@ -49,7 +49,7 @@ class CategoryService:
 
     def create(
         self,
-        data: schemas.Category
+        data: models.Category
     ) -> tables.Category:
         category = tables.Category(
             **data.dict()
@@ -65,7 +65,7 @@ class CategoryService:
     def update(
         self,
         name: str,
-        data: schemas.Category
+        data: models.Category
     ) -> tables.Category:
 
         category = self._get(name)

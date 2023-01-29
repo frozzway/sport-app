@@ -19,7 +19,7 @@ from sport_app.database import get_session
 
 from sport_app import (
     tables,
-    schemas,
+    models,
     utils
 )
 
@@ -33,8 +33,8 @@ class RecordService:
 
     def create_record(
         self,
-        record_data: schemas.SchemaRecordCreate,
-    ) -> schemas.SchemaRecord:
+        record_data: models.SchemaRecordCreate,
+    ) -> models.SchemaRecord:
         schedule_record = tables.SchemaRecord(
             **record_data.dict()
         )
@@ -45,4 +45,8 @@ class RecordService:
             self.session.rollback()
             raise HTTPException(status.HTTP_409_CONFLICT, "Занятие отсутствует")
         return schedule_record.to_schema()
+
+    def get_many(self) -> list[models.SchemaRecord]:
+        records = self.session.query(tables.SchemaRecord).all()
+        return [record.to_schema() for record in records]
 

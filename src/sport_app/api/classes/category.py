@@ -5,7 +5,7 @@ from fastapi import (
     Response
 )
 
-from ...schemas import Category
+from ...models import Category
 from ...services import CategoryService
 
 

@@ -46,9 +46,14 @@ def calc_date_sql(week_day: Integer, day_time: Time) -> BinaryExpression:
     return MONDAY + week_day + day_time
 
 
+def make_interval(years=0, months=0, weeks=0, days=0):
+    """Возвращает объект type::interval"""
+    return func.make_interval(years, months, weeks, days)
+
+
 def tz_date_sql(date):
     """Переводит date::timestamp в date::timestamptz"""
-    func.timezone(settings.timezone, date)
+    return func.timezone(settings.timezone, date)
 
 
 def calculate_date(week_day: int, day_time: datetime.time) -> datetime.datetime:

@@ -15,7 +15,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
 from .constructor import constructor
-from .schemas import (
+from .models import (
     class_to_schema,
     record_to_schema
 )

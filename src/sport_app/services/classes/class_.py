@@ -14,7 +14,7 @@ from ...database import get_session
 
 from ... import (
     tables,
-    schemas
+    models
 )
 
 
@@ -42,11 +42,11 @@ class ClassService:
     def get(
         self,
         class_id: int
-    ) -> schemas.Class:
+    ) -> models.Class:
         class_ = self._get(class_id)
         return class_.to_schema()
 
-    def get_many(self) -> list[schemas.Class]:
+    def get_many(self) -> list[models.Class]:
         classes = (
             self.session
             .query(tables.Class)
@@ -57,8 +57,8 @@ class ClassService:
 
     def create_class(
         self,
-        data: schemas.CreateClass
-    ) -> schemas.Class:
+        data: models.CreateClass
+    ) -> models.Class:
         class_ = tables.Class(
             **data.dict()
         )

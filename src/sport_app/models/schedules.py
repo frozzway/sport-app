@@ -10,22 +10,21 @@ import datetime
 
 class SchemaBase(BaseModel):
     name: str = Field(max_length=100)
-    active: bool
 
 
-class SchemaCreate(BaseModel):
-    name: str = Field(max_length=100)
-    active: bool = False
+class SchemaCreate(SchemaBase):
+    base_schema: Optional[int] = None
 
 
 class SchemaUpdate(BaseModel):
     name: Optional[str] = Field(max_length=100)
-    active: Optional[bool]
+    active: Optional[bool] = None
     activate_next_week: Optional[bool] = False
 
 
 class Schema(SchemaBase):
     id: int
+    active: bool
     to_be_active_from: datetime.datetime = None
 
     class Config:
@@ -55,10 +54,3 @@ class ScheduleRecord(BaseModel):
     date: datetime.datetime
     registration_opens_at: Optional[datetime.datetime]
     places_available: Optional[int]
-
-    def __eq__(self, other):
-        return self.Class.id == other.Class.id \
-                and self.date == other.date
-
-    def __repr__(self):
-        return f"Class.id={self.Class.id}, date={self.date}"

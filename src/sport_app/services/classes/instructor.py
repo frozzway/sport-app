@@ -14,7 +14,7 @@ from ...database import get_session
 
 from ... import (
     tables,
-    schemas
+    models
 )
 
 
@@ -63,7 +63,7 @@ class InstructorService:
 
     def create(
         self,
-        instructor_data: schemas.InstructorCreate
+        instructor_data: models.InstructorCreate
     ) -> tables.Instructor:
         instructor = tables.Instructor(
             **instructor_data.dict()
@@ -88,7 +88,7 @@ class InstructorService:
     def update(
         self,
         instructor_id: int,
-        instructor_data: schemas.InstructorUpdate
+        instructor_data: models.InstructorUpdate
     ) -> tables.Instructor:
         instructor = self._get(instructor_id)
         for field, value in instructor_data:

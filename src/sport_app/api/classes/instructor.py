@@ -5,7 +5,7 @@ from fastapi import (
     Response
 )
 
-from ...schemas import (
+from ...models import (
     Instructor,
     InstructorCreate,
     InstructorUpdate

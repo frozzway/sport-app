@@ -5,7 +5,7 @@ from fastapi import (
     Response
 )
 
-from ...schemas import (
+from ...models import (
     Schema,
     SchemaCreate,
     SchemaUpdate,
@@ -51,6 +51,17 @@ def update_schema(
     schema_service: SchemaService = Depends(),
 ):
     return schema_service.update_schema(schema_id, schema_data)
+
+
+@router.delete(
+    '/{schema_id}',
+    status_code=status.HTTP_204_NO_CONTENT
+)
+def delete_schema(
+    schema_id: int,
+    schema_service: SchemaService = Depends(),
+):
+    return schema_service.delete_schema(schema_id)
 
 
 @router.get(

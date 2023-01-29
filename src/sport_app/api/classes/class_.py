@@ -5,7 +5,7 @@ from fastapi import (
     Response
 )
 
-from ...schemas import Class, CreateClass
+from ...models import Class, CreateClass
 from ...services import ClassService
 
 
