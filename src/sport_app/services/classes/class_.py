@@ -69,3 +69,8 @@ class ClassService:
             self.session.rollback()
             raise HTTPException(status.HTTP_409_CONFLICT)
         return class_.to_schema()
+
+    def delete_class(self, class_id: int):
+        class_ = self._get(class_id)
+        self.session.delete(class_)
+        self.session.commit()

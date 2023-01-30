@@ -1,6 +1,5 @@
-from typing import (
-    Optional
-)
+from typing import Optional, Union
+from collections.abc import Iterable
 
 from dateutil import relativedelta as rd
 
@@ -95,7 +94,7 @@ class SchemaService:
         schema_id: int
     ):
         schema = self._get_schema(schema_id)
-        if schema.active:
+        if schema.active or schema.to_be_active_from:
             raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED)
         self.session.delete(schema)
         self.session.commit()
@@ -107,27 +106,37 @@ class SchemaService:
         next_week=False,
     ):
         """
-        Снимает бронирования клиентов на занятия, которые отсутствуют в новой схеме, но присутствуют в старой
-        :param schema: новая схема
-        :param target_schema: старая схема
-        :param next_week: удаляет записи со следующей недели
-        :return:
+        Генерирует список занятий, которые отсутствуют в schema, но присутствуют в target_schema,
+        передает список на снятие бронирования
         """
+        records = set(target_schema.records) - set(schema.records)
+        self._remove_booking(records, next_week=next_week)
+
+    def _remove_booking(
+        self,
+        records: Union[Iterable[tables.SchemaRecord], Iterable[int]],
+        next_week=False
+    ):
+        """
+        Снимает бронирование клиентов с занятий начиная с now()
+        :param next_week: снимет на следующей неделе
+        """
+        if isinstance(next(iter(records), None), int):
+            records = (
+                self.session
+                .query(tables.SchemaRecord)
+                .where(tables.SchemaRecord.id.in_(records))
+                .all()
+            )
         interval = rd.relativedelta(days=7) if next_week else rd.relativedelta()
-        target = set(target_schema.records) - set(schema.records)
-        obj_to_remove = []
-        for r in target:
-            date = r.date + interval
-            if date > utils.now():
-                obj_to_remove.append((r.Class, date))
+        obj_to_remove = [(r.Class, r.date + interval)
+                         for r in records
+                         if r.date+interval > utils.now()]
         B = aliased(tables.BookedClasses)
-        rows = (
-            self.session.query(B)
+        self.session.execute(
+            delete(B)
             .where(tuple_(B.class_id, B.date).in_(obj_to_remove))
-            .all()
         )
-        for row in rows:
-            self.session.delete(row)
         self.session.commit()
 
     # Нуждается в тестировании
@@ -143,10 +152,12 @@ class SchemaService:
         # активация схемы
         if schema_data.active:
             self._compare_schemas(schema, active_schema)
+            if not next_week_schema:
+                self._compare_schemas(schema, active_schema, next_week=True)
             active_schema.active = False
             schema.active = True
             # если активируется схема, которая запланирована на следующую неделю
-            if next_week_schema and next_week_schema.id == schema_id:
+            if next_week_schema and schema.id == next_week_schema.id:
                 schema.to_be_active_from = None
 
         # деактивация схемы
@@ -157,12 +168,13 @@ class SchemaService:
 
         # активация схемы на следующую неделю
         if schema_data.activate_next_week:
+            if schema.active:
+                raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
+                                    detail="Схема уже активна")
             if next_week_schema:
                 self._compare_schemas(schema, next_week_schema, next_week=True)
                 next_week_schema.to_be_active_from = None
             schema.to_be_active_from = utils.next_mo()
-            if schema.active:
-                schema.to_be_active_from = None
 
         for field, value in schema_data:
             if value:
@@ -180,7 +192,7 @@ class SchemaService:
     def include_records_in_schema(
         self,
         schema_id: int,
-        records_to_include: list[int],
+        records_to_include: Iterable[int],
     ) -> list[int]:
         schema = self._get_schema(schema_id)
         records = set((r.id for r in schema.records))
@@ -194,17 +206,31 @@ class SchemaService:
         self.session.commit()
         return [r.id for r in schema.records]
 
-    # Нуждается в доработке
-    def exclude_records_from_schema(
+    def exclude_records_from_schema_(
         self,
         schema_id: int,
         records_to_exclude: list[int]
     ):
         schema = self._get_schema(schema_id)
+
+        if schema.active:
+            self._remove_booking(records_to_exclude)
+            if not self.next_week_schema:
+                self._remove_booking(records_to_exclude, next_week=True)
+        elif schema.to_be_active_from:
+            self._remove_booking(records_to_exclude, next_week=True)
+
         table = alias(tables.schedule_schema_record)
         self.session.execute(
             delete(table)
             .where(table.c.schedule_record.in_(records_to_exclude))
             .where(table.c.schedule_schema == schema_id)
         )
+
+    def exclude_records_from_schema(
+        self,
+        schema_id: int,
+        records_to_exclude: list[int]
+    ):
+        self.exclude_records_from_schema_(schema_id, records_to_exclude)
         self.session.commit()

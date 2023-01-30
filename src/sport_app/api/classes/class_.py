@@ -46,3 +46,14 @@ def create_class(
     class_service: ClassService = Depends()
 ):
     return class_service.create_class(class_data)
+
+
+@router.delete(
+    '/{class_id}',
+    status_code=status.HTTP_204_NO_CONTENT
+)
+def delete_class(
+    class_id: int,
+    class_service: ClassService = Depends()
+):
+    return class_service.delete_class(class_id)

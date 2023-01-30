@@ -16,6 +16,7 @@ from sqlalchemy import delete, select, func
 from sqlalchemy.sql import alias, or_, and_
 
 from sport_app.database import get_session
+from .schema import SchemaService
 
 from sport_app import (
     tables,
@@ -30,6 +31,7 @@ class RecordService:
         session: Session = Depends(get_session)
     ):
         self.session = session
+        self.schema_service = SchemaService(session)
 
     def create_record(
         self,
@@ -50,3 +52,35 @@ class RecordService:
         records = self.session.query(tables.SchemaRecord).all()
         return [record.to_schema() for record in records]
 
+    def delete_record(
+        self,
+        record_id: int
+    ):
+        record = self._get_record(record_id)
+        active_schema = self.schema_service.active_schema
+        next_week_schema = self.schema_service.next_week_schema
+
+        if record in active_schema.records:
+            self.schema_service.exclude_records_from_schema_(active_schema.id, [record.id])
+        if next_week_schema and record in next_week_schema.records:
+            self.schema_service.exclude_records_from_schema_(next_week_schema.id, [record.id])
+
+        self.session.execute(
+            delete(tables.SchemaRecord)
+            .where(tables.SchemaRecord.id == record_id)
+        )
+        self.session.commit()
+
+    def _get_record(
+        self,
+        record_id: int
+    ) -> tables.SchemaRecord:
+        record = (
+            self.session
+            .query(tables.SchemaRecord)
+            .where(tables.SchemaRecord.id == record_id)
+            .first()
+        )
+        if not record:
+            raise HTTPException(status.HTTP_404_NOT_FOUND)
+        return record

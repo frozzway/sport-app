@@ -1,6 +1,8 @@
 from fastapi import (
     APIRouter,
-    Depends
+    Depends,
+    status,
+    Response
 )
 
 from ...models import SchemaRecord, SchemaRecordCreate
@@ -32,3 +34,15 @@ def get_records(
     record_service: RecordService = Depends()
 ):
     return record_service.get_many()
+
+
+@router.delete(
+    '/{record_id}',
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def delete_record(
+    record_id: int,
+    record_service: RecordService = Depends()
+):
+    record_service.delete_record(record_id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
