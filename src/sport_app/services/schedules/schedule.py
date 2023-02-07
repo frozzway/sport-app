@@ -80,12 +80,12 @@ class ScheduleService:
         schema: tables.ScheduleSchema,
         filters
     ) -> ScheduleSet:
-        SSR = alias(tables.schedule_schema_record)
+        SSR = tables.schedule_schema_record
         stmt = self._apply_filters((
             select(tables.Class, tables.SchemaRecord)
             .join(tables.SchemaRecord)
             .join(SSR)
-            .where(SSR.c.schedule_schema == schema.id)
+            .where(SSR.schedule_schema == schema.id)
         ), filters)
         return \
             {ScheduleInstance(Class=row.Class, date=row.SchemaRecord.date)
@@ -115,22 +115,22 @@ class ScheduleService:
             Возвращает занятия, на которые записывались клиенты (с подсчетом кол-ва записавшихся).
             Начиная с now()
         """
-        BC, SSR = alias(tables.BookedClasses), alias(tables.schedule_schema_record)
+        BC, SSR = tables.BookedClasses, tables.schedule_schema_record
         class_date = utils.calc_date_sql(tables.SchemaRecord.week_day, tables.SchemaRecord.day_time)
         stmt = self._apply_filters((
-            select(tables.Class, tables.SchemaRecord, BC.c.date, func.count(BC.c.id))
+            select(tables.Class, tables.SchemaRecord, BC.date, func.count(BC.id))
             .join(tables.SchemaRecord)
-            .join(BC, isouter=True)
+            .join(BC)
             .join(SSR)
-            .where(SSR.c.schedule_schema == schema.id)
+            .where(SSR.schedule_schema == schema.id)
             .where(tables.Class.available_registration.is_(True))
             .where(
                     or_(
-                        BC.c.date == utils.tz_date_sql(class_date),
-                        BC.c.date == utils.tz_date_sql(class_date + utils.make_interval(days=7))
-                    ) & (BC.c.date > func.now())
+                        BC.date == utils.tz_date_sql(class_date),
+                        BC.date == utils.tz_date_sql(class_date + utils.make_interval(days=7))
+                    ) & (BC.date > func.now())
             )
-            .group_by(tables.Class, tables.SchemaRecord, BC.c.date)
+            .group_by(tables.Class, tables.SchemaRecord, BC.date)
         ), filters)
         return \
             {ScheduleInstance(Class=row.Class, date=row.date, booked_places=row.count)

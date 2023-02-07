@@ -10,9 +10,9 @@ from fastapi import (
 )
 
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session, aliased
+from sqlalchemy.orm import Session
 from sqlalchemy import delete, select, func, tuple_
-from sqlalchemy.sql import alias, or_, and_
+from sqlalchemy.sql import or_, and_
 
 from sport_app.database import get_session
 
@@ -95,7 +95,8 @@ class SchemaService:
     ):
         schema = self._get_schema(schema_id)
         if schema.active or schema.to_be_active_from:
-            raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED)
+            raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
+                                detail="Запрещается удаление активной схемы")
         self.session.delete(schema)
         self.session.commit()
 
@@ -132,12 +133,13 @@ class SchemaService:
         obj_to_remove = [(r.Class, r.date + interval)
                          for r in records
                          if r.date+interval > utils.now()]
-        B = aliased(tables.BookedClasses)
+        B = tables.BookedClasses
         self.session.execute(
             delete(B)
             .where(tuple_(B.class_id, B.date).in_(obj_to_remove))
+            .all()
         )
-        self.session.commit()
+        self.session.flush()
 
     # Нуждается в тестировании
     def update_schema(
@@ -196,15 +198,16 @@ class SchemaService:
     ) -> list[int]:
         schema = self._get_schema(schema_id)
         records = set((r.id for r in schema.records))
-        existing_records = (
+        records.update(records_to_include)
+        new_records = (
             self.session
             .query(tables.SchemaRecord)
+            .filter(tables.SchemaRecord.id.in_(records))
             .all()
         )
-        records.update((r for r in records_to_include if r in existing_records))
-        schema.records = records
+        schema.records = new_records
         self.session.commit()
-        return [r.id for r in schema.records]
+        return [r.id for r in new_records]
 
     def exclude_records_from_schema_(
         self,
@@ -220,12 +223,13 @@ class SchemaService:
         elif schema.to_be_active_from:
             self._remove_booking(records_to_exclude, next_week=True)
 
-        table = alias(tables.schedule_schema_record)
+        table = tables.schedule_schema_record
         self.session.execute(
             delete(table)
-            .where(table.c.schedule_record.in_(records_to_exclude))
-            .where(table.c.schedule_schema == schema_id)
+            .where(table.schema_record.in_(records_to_exclude))
+            .where(table.schedule_schema == schema_id)
         )
+        self.session.flush()
 
     def exclude_records_from_schema(
         self,

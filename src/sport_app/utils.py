@@ -35,12 +35,12 @@ def this_mo_sql() -> BinaryExpression:
     return func.current_date() + 1 - func.cast(func.extract("isodow", func.current_date()), Integer)
 
 
-def previous_mo_sql() -> BinaryExpression:
+def previous_mo_sql():
     """Возвращает понедельник на предыдущей неделе NotAware [SQL BinaryExpression]"""
     return this_mo_sql() - 7
 
 
-def calc_date_sql(week_day: Integer, day_time: Time) -> BinaryExpression:
+def calc_date_sql(week_day: Integer, day_time: Time):
     """Конструирует дату по дню недели и времени дня на текущей неделе type::timestamp [SQL BinaryExpression]"""
     MONDAY = this_mo_sql()
     return MONDAY + week_day + day_time
