@@ -1,23 +1,25 @@
 from .classes import *
 from .schedules import *
+from .clients import *
+from .auth import *
 from ..database import as_dict
 
 
-def class_to_schema(self) -> Class:
+def program_to_model(self) -> Program:
     nested_models = {
         "category": Category.construct(name=self.category),
         "placement": Category.construct(name=self.placement),
         "instructor": InstructorPublic.from_orm(self.instructor_),
     }
-    schema = as_dict(self)
-    schema.update(nested_models)
-    return Class(**schema)
+    model = as_dict(self)
+    model.update(nested_models)
+    return Program(**model)
 
 
-def record_to_schema(self) -> SchemaRecord:
+def record_to_model(self) -> SchemaRecord:
     nested_models = {
-        "Class": self.class_.to_schema()
+        "program": self.program_.to_model()
     }
-    schema = as_dict(self)
-    schema.update(nested_models)
-    return SchemaRecord(**schema)
+    model = as_dict(self)
+    model.update(nested_models)
+    return SchemaRecord(**model)

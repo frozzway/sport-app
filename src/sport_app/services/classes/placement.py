@@ -30,7 +30,7 @@ class PlacementService:
     ):
         self.session = session
 
-    def get(
+    def get_placement(
         self,
         name: str
     ) -> Optional[tables.Placement]:
@@ -47,7 +47,7 @@ class PlacementService:
         )
         return placements
 
-    def create(
+    def create_placement(
         self,
         data: models.Placement
     ) -> tables.Placement:
@@ -62,7 +62,7 @@ class PlacementService:
             raise PlacementService.exception from None
         return placement
 
-    def update(
+    def update_placement(
         self,
         name: str,
         data: models.Placement
@@ -77,7 +77,7 @@ class PlacementService:
             raise PlacementService.exception from None
         return placement
 
-    def delete(
+    def delete_placement(
         self,
         name: str,
     ):

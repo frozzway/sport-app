@@ -26,34 +26,34 @@ from sport_app import (
 
 
 class ScheduleInstance(NamedTuple):
-    Class: tables.Class
+    program: tables.Program
     date: datetime.datetime
     booked_places: Optional[int] = 0
 
     def __eq__(self, other):
         return all([
             isinstance(other, ScheduleInstance),
-            self.Class.id == other.Class.id,
+            self.program.id == other.program.id,
             self.date == other.date
         ])
 
     def __hash__(self):
-        return hash((self.Class.id, self.date))
+        return hash((self.program.id, self.date))
 
     def to_schema(self) -> models.ScheduleRecord:
-        place_limit = self.Class.place_limit
+        place_limit = self.program.place_limit
         places_available = None
         registration_opens_at = None
 
-        if self.Class.available_registration and self.date >= utils.today():
+        if self.program.available_registration and self.date >= utils.today():
             if place_limit:
                 places_available = place_limit - self.booked_places
-            if self.Class.registration_opens:
-                pre_days = rd.relativedelta(days=self.Class.registration_opens, hour=16)  # дней до открытия регистрации
+            if self.program.registration_opens:
+                pre_days = rd.relativedelta(days=self.program.registration_opens, hour=16)  # дней до открытия регистрации
                 registration_opens_at = self.date - pre_days
 
         return models.ScheduleRecord(
-                Class=self.Class.to_schema(),
+                program=self.program.to_model(),
                 places_available=places_available,
                 registration_opens_at=registration_opens_at,
                 date=self.date,
@@ -67,10 +67,9 @@ class ScheduleService:
     def __init__(
         self,
         session: Session = Depends(get_session),
-        schema_service: SchemaService = Depends()
     ):
         self.session = session
-        self.schema_service = schema_service
+        self.schema_service = SchemaService(session)
 
     def _validate_active_schema(self):
         pass
@@ -82,27 +81,27 @@ class ScheduleService:
     ) -> ScheduleSet:
         SSR = tables.schedule_schema_record
         stmt = self._apply_filters((
-            select(tables.Class, tables.SchemaRecord)
+            select(tables.Program, tables.SchemaRecord)
             .join(tables.SchemaRecord)
             .join(SSR)
-            .where(SSR.schedule_schema == schema.id)
+            .where(SSR.c.schedule_schema == schema.id)
         ), filters)
         return \
-            {ScheduleInstance(Class=row.Class, date=row.SchemaRecord.date)
+            {ScheduleInstance(program=row.Program, date=row.SchemaRecord.date)
                 for row in self.session.execute(stmt).all()}
 
     @staticmethod
     def _prolonged_grid(grid: ScheduleSet) -> ScheduleSet:
         week = rd.relativedelta(days=7)
         return \
-            {ScheduleInstance(Class=obj.Class, date=obj.date + week)
+            {ScheduleInstance(program=obj.program, date=obj.date + week)
                 for obj in grid}
 
     @staticmethod
     def _apply_filters(stmt: Select, filters: dict):
         for filter_pointer, filter_val in filters.items():
             if filter_val:
-                cond = object.__getattribute__(tables.Class, filter_pointer) == filter_val
+                cond = object.__getattribute__(tables.Program, filter_pointer) == filter_val
                 stmt = stmt.where(cond)
         return stmt
 
@@ -111,29 +110,25 @@ class ScheduleService:
         schema: tables.ScheduleSchema,
         filters,
     ) -> ScheduleSet:
-        """
-            Возвращает занятия, на которые записывались клиенты (с подсчетом кол-ва записавшихся).
-            Начиная с now()
-        """
         BC, SSR = tables.BookedClasses, tables.schedule_schema_record
         class_date = utils.calc_date_sql(tables.SchemaRecord.week_day, tables.SchemaRecord.day_time)
         stmt = self._apply_filters((
-            select(tables.Class, tables.SchemaRecord, BC.date, func.count(BC.id))
+            select(tables.Program, tables.SchemaRecord, BC.date, func.count(BC.id))
             .join(tables.SchemaRecord)
             .join(BC)
             .join(SSR)
-            .where(SSR.schedule_schema == schema.id)
-            .where(tables.Class.available_registration.is_(True))
+            .where(SSR.c.schedule_schema == schema.id)
+            .where(tables.Program.available_registration.is_(True))
             .where(
                     or_(
                         BC.date == utils.tz_date_sql(class_date),
                         BC.date == utils.tz_date_sql(class_date + utils.make_interval(days=7))
                     ) & (BC.date > func.now())
             )
-            .group_by(tables.Class, tables.SchemaRecord, BC.date)
+            .group_by(tables.Program, tables.SchemaRecord, BC.date)
         ), filters)
         return \
-            {ScheduleInstance(Class=row.Class, date=row.date, booked_places=row.count)
+            {ScheduleInstance(program=row.Program, date=row.date, booked_places=row.count)
                 for row in self.session.execute(stmt).all()}
 
     def construct_schedule(self, filters) -> list[models.ScheduleRecord]:

@@ -18,7 +18,7 @@ from ... import (
 )
 
 
-class ClassService:
+class ProgramService:
     def __init__(
         self,
         session: Session = Depends(get_session)
@@ -27,50 +27,50 @@ class ClassService:
 
     def _get(
         self,
-        class_id: int
-    ) -> Optional[tables.Class]:
-        class_ = (
+        program_id: int
+    ) -> Optional[tables.Program]:
+        program = (
             self.session
-            .query(tables.Class)
-            .filter(tables.Class.id == class_id)
+            .query(tables.Program)
+            .filter(tables.Program.id == program_id)
             .first()
         )
-        if not class_:
+        if not program:
             raise HTTPException(status.HTTP_404_NOT_FOUND)
-        return class_
+        return program
 
     def get(
         self,
-        class_id: int
-    ) -> models.Class:
-        class_ = self._get(class_id)
-        return class_.to_schema()
+        program_id: int
+    ) -> tables.Program:
+        program = self._get(program_id)
+        return program
 
-    def get_many(self) -> list[models.Class]:
-        classes = (
+    def get_many(self) -> list[models.Program]:
+        programs = (
             self.session
-            .query(tables.Class)
+            .query(tables.Program)
             .all()
         )
-        return [c.to_schema()
-                for c in classes]
+        return [c.to_model()
+                for c in programs]
 
-    def create_class(
+    def create_program(
         self,
-        data: models.CreateClass
-    ) -> models.Class:
-        class_ = tables.Class(
+        data: models.CreateProgram
+    ) -> models.Program:
+        program = tables.Program(
             **data.dict()
         )
         try:
-            self.session.add(class_)
+            self.session.add(program)
             self.session.commit()
         except IntegrityError:
             self.session.rollback()
             raise HTTPException(status.HTTP_409_CONFLICT)
-        return class_.to_schema()
+        return program.to_model()
 
-    def delete_class(self, class_id: int):
-        class_ = self._get(class_id)
-        self.session.delete(class_)
+    def delete_program(self, program_id: int):
+        program = self._get(program_id)
+        self.session.delete(program)
         self.session.commit()

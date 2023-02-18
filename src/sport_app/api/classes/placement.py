@@ -11,7 +11,7 @@ from ...services import PlacementService
 
 router = APIRouter(
     prefix='/placement',
-    tags=['Помещения']
+    tags=['placements']
 )
 
 
@@ -34,7 +34,7 @@ def create_placement(
     placement_data: Placement,
     placement_service: PlacementService = Depends()
 ):
-    return placement_service.create(placement_data)
+    return placement_service.create_placement(placement_data)
 
 
 @router.put(
@@ -46,7 +46,7 @@ def update_placement(
     placement_data: Placement,
     placement_service: PlacementService = Depends()
 ):
-    return placement_service.update(placement_name, placement_data)
+    return placement_service.update_placement(placement_name, placement_data)
 
 
 @router.delete(
@@ -57,5 +57,5 @@ def delete_placement(
     placement_name: str,
     placement_service: PlacementService = Depends()
 ):
-    placement_service.delete(placement_name)
+    placement_service.delete_placement(placement_name)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

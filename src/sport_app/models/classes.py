@@ -48,8 +48,8 @@ class InstructorPublic(BaseModel):
         orm_mode = True
 
 
-class BaseClass(BaseModel):
-    program: str = Field(max_length=100)
+class BaseProgram(BaseModel):
+    name: str = Field(max_length=100)
     category: Category
     placement: Placement
     instructor: InstructorPublic
@@ -59,11 +59,11 @@ class BaseClass(BaseModel):
     available_registration: Optional[bool]
 
 
-class CreateClass(BaseClass):
+class CreateProgram(BaseProgram):
     pass
 
 
-class Class(BaseClass):
+class Program(BaseProgram):
     id: int
 
     class Config:

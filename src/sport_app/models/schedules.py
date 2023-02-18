@@ -4,7 +4,7 @@ from pydantic import (
     BaseModel,
     Field
 )
-from .classes import Class
+from .classes import Program
 import datetime
 
 
@@ -38,19 +38,19 @@ class SchemaRecordBase(BaseModel):
 
 
 class SchemaRecordCreate(SchemaRecordBase):
-    Class: Union[Class, int]
+    program: Union[Program, int]
 
 
 class SchemaRecord(SchemaRecordBase):
     id: int
-    Class: Class
+    program: Program
 
     class Config:
         orm_mode: True
 
 
 class ScheduleRecord(BaseModel):
-    Class: Class
+    program: Program
     date: datetime.datetime
     registration_opens_at: Optional[datetime.datetime]
     places_available: Optional[int]

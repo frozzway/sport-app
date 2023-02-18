@@ -11,7 +11,7 @@ from ...services import CategoryService
 
 router = APIRouter(
     prefix='/category',
-    tags=['Категории']
+    tags=['categories']
 )
 
 
@@ -34,7 +34,7 @@ def create_category(
     category_data: Category,
     category_service: CategoryService = Depends()
 ):
-    return category_service.create(category_data)
+    return category_service.create_category(category_data)
 
 
 @router.put(
@@ -46,7 +46,7 @@ def update_category(
     category_data: Category,
     category_service: CategoryService = Depends()
 ):
-    return category_service.update(category_name, category_data)
+    return category_service.update_category(category_name, category_data)
 
 
 @router.delete(
@@ -57,5 +57,5 @@ def delete_category(
     category_name: str,
     category_service: CategoryService = Depends()
 ):
-    category_service.delete(category_name)
+    category_service.delete_category(category_name)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

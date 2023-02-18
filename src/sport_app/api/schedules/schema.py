@@ -16,13 +16,14 @@ from ...services import SchemaService
 
 router = APIRouter(
     prefix='/schema',
-    tags=['Схемы расписания']
+    tags=['schedule schemas']
 )
 
 
 @router.post(
     '/',
-    response_model=Schema
+    response_model=Schema,
+    status_code=status.HTTP_201_CREATED,
 )
 def create_schema(
     schema_data: SchemaCreate,

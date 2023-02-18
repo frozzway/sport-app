@@ -1,14 +1,8 @@
+import enum
 from sqlalchemy import (
-    Column,
-    String,
-    Integer,
-    Numeric,
-    ForeignKey,
-    DateTime,
-    Time,
-    Boolean,
-    JSON,
-    Table,
+    Column, String, Integer,
+    ForeignKey, DateTime, Time, Boolean, JSON,
+    Table, UniqueConstraint, Enum
 )
 
 from sqlalchemy.ext.declarative import declarative_base
@@ -16,13 +10,14 @@ from sqlalchemy.orm import relationship
 
 from .constructor import constructor
 from .models import (
-    class_to_schema,
-    record_to_schema
+    program_to_model,
+    record_to_model
 )
 from .utils import *
 
 
 Base = declarative_base(constructor=constructor)
+Roles = enum.Enum('staff_roles', ['admin', 'operator'])
 
 
 class Category(Base):
@@ -44,14 +39,14 @@ class Instructor(Base):
     credentials = Column(String)
     phone = Column(String, unique=True)
 
-    classes = relationship("Class", back_populates="instructor_")
+    programs = relationship("Program", back_populates="instructor_")
 
 
-class Class(Base):
-    __tablename__ = "class"
+class Program(Base):
+    __tablename__ = "program"
 
     id = Column(Integer, primary_key=True)
-    program = Column(String)
+    name = Column(String)
     category = Column(String, ForeignKey("category.name", onupdate="CASCADE"))
     placement = Column(String, ForeignKey("placement.name", onupdate="CASCADE"))
     instructor = Column(Integer, ForeignKey("instructor.id"))
@@ -60,12 +55,16 @@ class Class(Base):
     registration_opens = Column(Integer, nullable=True)
     available_registration = Column(Boolean, default=False)
 
-    # category = relationship("Category", back_populates="classes")
-    # placement = relationship("Placement", back_populates="classes")
-    instructor_ = relationship("Instructor", back_populates="classes")
-    schema_records = relationship("SchemaRecord", back_populates="class_")
+    instructor_ = relationship("Instructor", back_populates="programs")
+    schema_records = relationship("SchemaRecord", back_populates="program_")
 
-    to_schema = class_to_schema
+    to_model = program_to_model
+
+    def registration_opens_at(self, class_date: datetime.datetime) -> datetime.datetime:
+        if not self.registration_opens:
+            return day_stub()
+        pre_days = rd.relativedelta(days=self.registration_opens, hour=16)
+        return class_date - pre_days
 
 
 schedule_schema_record = Table(
@@ -83,11 +82,11 @@ class SchemaRecord(Base):
     week_day = Column(Integer)
     day_time = Column(Time)
     duration = Column(Integer)
-    Class = Column(Integer, ForeignKey("class.id", ondelete="CASCADE"))
+    program = Column(Integer, ForeignKey("program.id", ondelete="CASCADE"))
 
-    class_ = relationship("Class", back_populates="schema_records")
+    program_ = relationship("Program", back_populates="schema_records")
 
-    to_schema = record_to_schema
+    to_model = record_to_model
 
     @property
     def date(self):
@@ -118,6 +117,25 @@ class BookedClasses(Base):
     __tablename__ = "booked_classes"
 
     id = Column(Integer, primary_key=True)
-    client_id = Column(Integer, ForeignKey("client.id", ondelete="CASCADE"))
-    class_id = Column(Integer, ForeignKey("class.id", ondelete="CASCADE"))
+    client = Column(Integer, ForeignKey("client.id", ondelete="CASCADE"))
+    program = Column(Integer, ForeignKey("program.id", ondelete="CASCADE"))
     date = Column(DateTime(timezone=True))
+
+    __table_args__ = (
+        UniqueConstraint(
+            'client',
+            'program',
+            'date',
+            name='one_booking_per_client_uc'
+        ),
+    )
+
+
+class Staff(Base):
+    __tablename__ = "staff"
+
+    id = Column(Integer, primary_key=True)
+    username = Column(String, unique=True)
+    email = Column(String, unique=True)
+    password_hash = Column(String)
+    role = Column(Enum(Roles))

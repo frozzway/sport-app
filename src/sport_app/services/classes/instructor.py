@@ -44,7 +44,7 @@ class InstructorService:
             raise HTTPException(status.HTTP_404_NOT_FOUND)
         return instructor
 
-    def get(
+    def get_instructor(
         self,
         instructor_id: int
     ) -> tables.Instructor:
@@ -61,7 +61,7 @@ class InstructorService:
         )
         return instructors
 
-    def create(
+    def create_instructor(
         self,
         instructor_data: models.InstructorCreate
     ) -> tables.Instructor:
@@ -76,7 +76,7 @@ class InstructorService:
             raise InstructorService.exception from None
         return instructor
 
-    def delete(
+    def delete_instructor(
         self,
         instructor_id: int
     ):
@@ -85,7 +85,7 @@ class InstructorService:
         self.session.commit()
         return
 
-    def update(
+    def update_instructor(
         self,
         instructor_id: int,
         instructor_data: models.InstructorUpdate

@@ -46,11 +46,11 @@ class RecordService:
         except IntegrityError:
             self.session.rollback()
             raise HTTPException(status.HTTP_409_CONFLICT, "Занятие отсутствует")
-        return schedule_record.to_schema()
+        return schedule_record.to_model()
 
     def get_many(self) -> list[models.SchemaRecord]:
         records = self.session.query(tables.SchemaRecord).all()
-        return [record.to_schema() for record in records]
+        return [record.to_model() for record in records]
 
     def delete_record(
         self,

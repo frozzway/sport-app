@@ -130,13 +130,13 @@ class SchemaService:
                 .all()
             )
         interval = rd.relativedelta(days=7) if next_week else rd.relativedelta()
-        obj_to_remove = [(r.Class, r.date + interval)
+        obj_to_remove = [(r.program, r.date + interval)
                          for r in records
                          if r.date+interval > utils.now()]
         B = tables.BookedClasses
         self.session.execute(
             delete(B)
-            .where(tuple_(B.class_id, B.date).in_(obj_to_remove))
+            .where(tuple_(B.program, B.date).in_(obj_to_remove))
             .all()
         )
         self.session.flush()
@@ -189,7 +189,7 @@ class SchemaService:
         schema_id: int
     ) -> list[models.SchemaRecord]:
         schedule_schema = self._get_schema(schema_id)
-        return [record.to_schema() for record in schedule_schema.records]
+        return [record.to_model() for record in schedule_schema.records]
 
     def include_records_in_schema(
         self,

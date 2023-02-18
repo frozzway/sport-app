@@ -4,3 +4,6 @@ uvicorn
 sqlalchemy
 psycopg2
 python-dateutil
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart

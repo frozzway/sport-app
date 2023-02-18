@@ -9,7 +9,7 @@ from ...services import ScheduleService
 
 
 router = APIRouter(
-    tags=['Расписание']
+    tags=['schedule']
 )
 
 
@@ -21,13 +21,13 @@ def get_schedule(
     category: Optional[str] = None,
     instructor: Optional[int] = None,
     placement: Optional[str] = None,
-    program: Optional[str] = None,
+    program: Optional[int] = None,
     schedule_service: ScheduleService = Depends()
 ):
     filters = {
         "category": category,
         "instructor": instructor,
         "placement": placement,
-        "program": program,
+        "id": program,
     }
     return schedule_service.construct_schedule(filters)

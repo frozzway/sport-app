@@ -11,13 +11,14 @@ from ...services import RecordService
 
 router = APIRouter(
     prefix='/record',
-    tags=['Записи расписания']
+    tags=['records']
 )
 
 
 @router.post(
     '/',
-    response_model=SchemaRecord
+    response_model=SchemaRecord,
+    status_code=status.HTTP_201_CREATED,
 )
 def create_record(
     record_data: SchemaRecordCreate,

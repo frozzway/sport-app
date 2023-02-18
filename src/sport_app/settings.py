@@ -12,10 +12,14 @@ class Settings(BaseSettings):
     db_port: str = '5432'
     db_database: str = 'sport_app'
 
-    timezone: str = "Asia/Yekaterinburg"
+    timezone: str = 'Asia/Yekaterinburg'
+
+    jwt_secret: str = ''
+    jwt_algorithm: str = 'HS256'
+    jwt_expires_s: int = 3600
 
 
 settings = Settings(
-    _env_file='.env',
+    _env_file='../.env',
     _env_file_encoding='utf-8',
 )

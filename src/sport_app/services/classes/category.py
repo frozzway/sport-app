@@ -47,7 +47,7 @@ class CategoryService:
         )
         return categories
 
-    def create(
+    def create_category(
         self,
         data: models.Category
     ) -> tables.Category:
@@ -62,7 +62,7 @@ class CategoryService:
             raise CategoryService.exception from None
         return category
 
-    def update(
+    def update_category(
         self,
         name: str,
         data: models.Category
@@ -74,7 +74,7 @@ class CategoryService:
         self.session.commit()
         return category
 
-    def delete(
+    def delete_category(
         self,
         name: str,
     ):

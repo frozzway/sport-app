@@ -1,3 +1,4 @@
+from typing import Union
 from dateutil.utils import today as _today
 from dateutil.tz import gettz
 from dateutil import relativedelta as rd
@@ -60,3 +61,7 @@ def calculate_date(week_day: int, day_time: datetime.time) -> datetime.datetime:
     """Конструирует дату по дню недели и времени дня на текущей неделе Aware"""
     MONDAY = this_mo()
     return MONDAY + rd.relativedelta(days=+week_day, hour=day_time.hour, minute=day_time.minute)
+
+
+def day_stub() -> datetime.datetime:
+    return datetime.datetime(2000, 1, 1, tzinfo=tz)

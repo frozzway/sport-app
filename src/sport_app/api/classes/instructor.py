@@ -15,7 +15,7 @@ from ...services import InstructorService
 
 router = APIRouter(
     prefix='/instructor',
-    tags=['Инструктора']
+    tags=['instructors']
 )
 
 
@@ -27,7 +27,7 @@ def get_instructor(
     instructor_id: int,
     instructor_service: InstructorService = Depends()
 ):
-    return instructor_service.get(instructor_id)
+    return instructor_service.get_instructor(instructor_id)
 
 
 @router.get(
@@ -49,7 +49,7 @@ def create_instructor(
     instructor_data: InstructorCreate,
     instructor_service: InstructorService = Depends()
 ):
-    return instructor_service.create(instructor_data)
+    return instructor_service.create_instructor(instructor_data)
 
 
 @router.put(
@@ -61,7 +61,7 @@ def update_instructor(
     instructor_data: InstructorUpdate,
     instructor_service: InstructorService = Depends()
 ):
-    return instructor_service.update(instructor_id, instructor_data)
+    return instructor_service.update_instructor(instructor_id, instructor_data)
 
 
 @router.delete(
@@ -72,5 +72,5 @@ def delete_instructor(
     instructor_id: int,
     instructor_service: InstructorService = Depends()
 ):
-    instructor_service.delete(instructor_id)
+    instructor_service.delete_instructor(instructor_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
