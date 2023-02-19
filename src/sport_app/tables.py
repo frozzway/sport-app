@@ -1,4 +1,3 @@
-import enum
 from sqlalchemy import (
     Column, String, Integer,
     ForeignKey, DateTime, Time, Boolean, JSON,
@@ -11,13 +10,13 @@ from sqlalchemy.orm import relationship
 from .constructor import constructor
 from .models import (
     program_to_model,
-    record_to_model
+    record_to_model,
+    Roles
 )
 from .utils import *
 
 
 Base = declarative_base(constructor=constructor)
-Roles = enum.Enum('staff_roles', ['admin', 'operator'])
 
 
 class Category(Base):

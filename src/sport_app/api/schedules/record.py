@@ -7,11 +7,13 @@ from fastapi import (
 
 from ...models import SchemaRecord, SchemaRecordCreate
 from ...services import RecordService
+from ...services.auth import validate_admin_access
 
 
 router = APIRouter(
     prefix='/record',
-    tags=['records']
+    tags=['records'],
+    dependencies=[Depends(validate_admin_access)],
 )
 
 

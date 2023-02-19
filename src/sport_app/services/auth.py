@@ -17,8 +17,23 @@ from .. import models, tables
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/auth/sign-in/')
 
 
-def get_current_user(token: str = Depends(oauth2_scheme)) -> models.Staff:
+def get_current_staff(token: str = Depends(oauth2_scheme)) -> models.Staff:
     return AuthService.verify_token(token)
+
+
+def validate_admin_access(staff_member: models.Staff = Depends(get_current_staff)):
+    if staff_member.role != "staff_role.admin":
+        raise HTTPException(status.HTTP_403_FORBIDDEN)
+
+
+def validate_operator_access(staff_member: models.Staff = Depends(get_current_staff)):
+    try:
+        validate_admin_access(staff_member)
+        return
+    except HTTPException:
+        pass
+    if staff_member.role != "staff_role.operator":
+        raise HTTPException(status.HTTP_403_FORBIDDEN)
 
 
 class AuthService:
@@ -58,6 +73,7 @@ class AuthService:
     @staticmethod
     def create_token(user: tables.Staff) -> models.Token:
         user_data = models.Staff.from_orm(user)
+        user_data.role = str(user_data.role)
         now = datetime.utcnow()
         payload = {
             'iat': now,

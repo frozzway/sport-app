@@ -7,10 +7,11 @@ from fastapi import (
 
 from ...models import Program, CreateProgram
 from ...services import ProgramService
+from ...services.auth import validate_admin_access
 
 
 router = APIRouter(
-    tags=['programs']
+    tags=['programs'],
 )
 
 
@@ -39,6 +40,7 @@ def get_all_programs(
     '/',
     response_model=Program,
     status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(validate_admin_access)],
 )
 def create_program(
     program_data: CreateProgram,
@@ -49,7 +51,8 @@ def create_program(
 
 @router.delete(
     '/{program_id}',
-    status_code=status.HTTP_204_NO_CONTENT
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(validate_admin_access)],
 )
 def delete_program(
     program_id: int,

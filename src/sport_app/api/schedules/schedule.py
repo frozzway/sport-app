@@ -9,7 +9,7 @@ from ...services import ScheduleService
 
 
 router = APIRouter(
-    tags=['schedule']
+    tags=['schedule'],
 )
 
 

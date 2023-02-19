@@ -12,11 +12,13 @@ from ...models import (
     SchemaRecord
 )
 from ...services import SchemaService
+from ...services.auth import validate_admin_access
 
 
 router = APIRouter(
     prefix='/schema',
-    tags=['schedule schemas']
+    tags=['schedule schemas'],
+    dependencies=[Depends(validate_admin_access)],
 )
 
 

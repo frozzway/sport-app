@@ -1,4 +1,10 @@
+import enum
+from typing import Union
+
 from pydantic import BaseModel
+
+
+Roles = enum.Enum('staff_role', ['admin', 'operator'])
 
 
 class BaseStaff(BaseModel):
@@ -12,7 +18,7 @@ class StaffCreate(BaseStaff):
 
 class Staff(BaseStaff):
     id: int
-    role: str
+    role: Union[str, Roles]
 
     class Config:
         orm_mode = True

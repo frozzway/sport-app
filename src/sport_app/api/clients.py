@@ -9,6 +9,8 @@ from fastapi import (
 
 from ..models import Client, CreateClient, ClientUpdate
 from ..services import ClientService
+from ..services.auth import validate_admin_access, validate_operator_access
+
 
 router = APIRouter(
     prefix='/client',
@@ -18,7 +20,8 @@ router = APIRouter(
 
 @router.get(
     '/{client_id}',
-    response_model=Client
+    response_model=Client,
+    dependencies=[Depends(validate_operator_access)],
 )
 def get_client(
     client_id: int,
@@ -31,6 +34,7 @@ def get_client(
     '/',
     response_model=Client,
     status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(validate_admin_access)],
 )
 def create_client(
     client_data: CreateClient,
@@ -41,7 +45,8 @@ def create_client(
 
 @router.put(
     '/{client_id}',
-    response_model=Client
+    response_model=Client,
+    dependencies=[Depends(validate_admin_access)],
 )
 def update_client(
     client_id: int,
@@ -53,7 +58,8 @@ def update_client(
 
 @router.post(
     '/{client_id}/book',
-    status_code=status.HTTP_204_NO_CONTENT
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(validate_operator_access)],
 )
 def book_client(
     client_id: int,

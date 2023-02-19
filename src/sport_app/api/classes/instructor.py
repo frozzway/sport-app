@@ -11,11 +11,13 @@ from ...models import (
     InstructorUpdate
 )
 from ...services import InstructorService
+from ...services.auth import validate_admin_access
 
 
 router = APIRouter(
     prefix='/instructor',
-    tags=['instructors']
+    tags=['instructors'],
+    dependencies=[Depends(validate_admin_access)],
 )
 
 

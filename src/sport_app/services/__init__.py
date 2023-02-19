@@ -6,3 +6,4 @@ from .schedules.schedule import ScheduleService
 from .schedules.records import RecordService
 from .schedules.schema import SchemaService
 from .client import ClientService
+from .auth import AuthService
