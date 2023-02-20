@@ -151,42 +151,42 @@ class SchemaService:
         schema_id: int,
         schema_data: models.SchemaUpdate,
     ) -> tables.ScheduleSchema:
-        schema = self._get_schema(schema_id)
+        target_schema = self._get_schema(schema_id)
         active_schema = self.active_schema
         next_week_schema = self.next_week_schema
 
         # активация схемы
         if schema_data.active:
-            self._compare_schemas(schema, active_schema)
+            self._compare_schemas(target_schema, active_schema)
             if not next_week_schema:
-                self._compare_schemas(schema, active_schema, next_week=True)
+                self._compare_schemas(target_schema, active_schema, next_week=True)
             active_schema.active = False
-            schema.active = True
+            target_schema.active = True
             # если активируется схема, которая запланирована на следующую неделю
-            if next_week_schema and schema.id == next_week_schema.id:
-                schema.to_be_active_from = None
+            if next_week_schema and target_schema.id == next_week_schema.id:
+                target_schema.to_be_active_from = None
 
         # деактивация схемы
         if schema_data.active is False:
-            if schema.id == active_schema.id:
+            if target_schema.id == active_schema.id:
                 raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
                                     detail="Не допускается деактивация схемы")
 
-        # активация схемы на следующую неделю
+        # установка схемы на следующую неделю
         if schema_data.activate_next_week:
-            if schema.active:
+            if target_schema.active:
                 raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
                                     detail="Схема уже активна")
             if next_week_schema:
-                self._compare_schemas(schema, next_week_schema, next_week=True)
+                self._compare_schemas(target_schema, next_week_schema, next_week=True)
                 next_week_schema.to_be_active_from = None
-            schema.to_be_active_from = utils.next_mo()
+            target_schema.to_be_active_from = utils.next_mo()
 
         for field, value in schema_data:
             if value:
-                setattr(schema, field, value)
+                setattr(target_schema, field, value)
         self.session.commit()
-        return schema
+        return target_schema
 
     def get_schema_records(
         self,

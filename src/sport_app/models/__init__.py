@@ -1,4 +1,4 @@
-from .classes import *
+from .programs import *
 from .schedules import *
 from .clients import *
 from .auth import *

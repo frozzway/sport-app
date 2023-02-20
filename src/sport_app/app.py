@@ -35,7 +35,11 @@ tags_metadata = [
     {
         'name': 'clients',
         'description': 'Операции над клиентами',
-    }
+    },
+    {
+        'name': 'auth',
+        'description': 'Аутентификация'
+    },
 ]
 
 app = FastAPI(openapi_tags=tags_metadata)

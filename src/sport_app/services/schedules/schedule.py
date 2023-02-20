@@ -124,7 +124,6 @@ class ScheduleService:
         self._validate_active_schema()
         active_schema = self.schema_service.active_schema
         next_week_schema = self.schema_service.next_week_schema
-
         booked_classes = self._count_booked_classes(filters)
         current_week_classes = self._get_grid(active_schema, filters)
         if next_week_schema:
@@ -132,7 +131,5 @@ class ScheduleService:
             next_week_classes = self._prolong_grid(grid)
         else:
             next_week_classes = self._prolong_grid(current_week_classes)
-
         response = booked_classes | current_week_classes | next_week_classes
-
         return [obj.to_model() for obj in response]
