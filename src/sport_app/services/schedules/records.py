@@ -1,27 +1,17 @@
-from typing import (
-    Optional
-)
-
-from dateutil import relativedelta as rd
-
 from fastapi import (
     Depends,
     HTTPException,
     status
 )
-
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-from sqlalchemy import delete, select, func
-from sqlalchemy.sql import alias, or_, and_
+from sqlalchemy import delete
 
-from sport_app.database import get_session
 from .schema import SchemaService
-
-from sport_app import (
+from ...database import get_session
+from ... import (
     tables,
-    models,
-    utils
+    models
 )
 
 
@@ -45,7 +35,7 @@ class RecordService:
             self.session.commit()
         except IntegrityError:
             self.session.rollback()
-            raise HTTPException(status.HTTP_409_CONFLICT, "Занятие отсутствует")
+            raise HTTPException(status.HTTP_409_CONFLICT, "Тренировочная программа не существует")
         return schedule_record.to_model()
 
     def get_many(self) -> list[models.SchemaRecord]:

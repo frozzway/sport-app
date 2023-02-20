@@ -33,7 +33,7 @@ class PlacementService:
     def get_placement(
         self,
         name: str
-    ) -> Optional[tables.Placement]:
+    ) -> tables.Placement:
         placement = self._get(name)
         return placement
 

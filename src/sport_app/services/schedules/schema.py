@@ -1,22 +1,19 @@
+import datetime
 from typing import Optional, Union
 from collections.abc import Iterable
-
-from dateutil import relativedelta as rd
 
 from fastapi import (
     Depends,
     HTTPException,
     status
 )
-
-from sqlalchemy.exc import IntegrityError
+from dateutil import relativedelta as rd
 from sqlalchemy.orm import Session
-from sqlalchemy import delete, select, func, tuple_
-from sqlalchemy.sql import or_, and_
+from sqlalchemy import delete, tuple_
 
-from sport_app.database import get_session
+from ...database import get_session
 
-from sport_app import (
+from ... import (
     tables,
     models,
     utils
@@ -133,10 +130,17 @@ class SchemaService:
         obj_to_remove = [(r.program, r.date + interval)
                          for r in records
                          if r.date+interval > utils.now()]
+        self.remove_booked_rows(obj_to_remove)
+
+    def remove_booked_rows(self, rows: list[tuple[int, datetime.datetime]]):
+        """
+        Removes rows from BookedClasses
+        :param rows: int - id тренировочной программы, datetime.datetime - дата занятия
+        """
         B = tables.BookedClasses
         self.session.execute(
             delete(B)
-            .where(tuple_(B.program, B.date).in_(obj_to_remove))
+            .where(tuple_(B.program, B.date).in_(rows))
             .all()
         )
         self.session.flush()

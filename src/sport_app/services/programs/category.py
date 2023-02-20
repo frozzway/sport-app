@@ -33,7 +33,7 @@ class CategoryService:
     def get(
         self,
         name: str
-    ) -> Optional[tables.Category]:
+    ) -> tables.Category:
         category = self._get(name)
         return category
 

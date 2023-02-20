@@ -1,10 +1,6 @@
 import datetime
-from typing import (
-    Optional,
-    NamedTuple
-)
+from typing import Optional
 
-from dateutil import relativedelta as rd
 from fastapi import (
     Depends,
     HTTPException,
@@ -12,16 +8,15 @@ from fastapi import (
 )
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-from sqlalchemy import delete, select, func
-from sqlalchemy.sql import alias, or_, and_
-from sqlalchemy.sql.expression import Select
+from sqlalchemy import select, func
+from sqlalchemy.sql import and_
 
 from . import (
     SchemaService,
     ProgramService
 )
-from sport_app.database import get_session
-from sport_app import (
+from ..database import get_session
+from .. import (
     tables,
     models,
     utils

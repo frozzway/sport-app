@@ -31,32 +31,6 @@ def this_mo() -> datetime.datetime:
     return TODAY + rd.relativedelta(weekday=rd.MO(-1))
 
 
-def this_mo_sql() -> BinaryExpression:
-    """Возвращает понедельник на текущей неделе NotAware [SQL BinaryExpression]"""
-    return func.current_date() + 1 - func.cast(func.extract("isodow", func.current_date()), Integer)
-
-
-def previous_mo_sql():
-    """Возвращает понедельник на предыдущей неделе NotAware [SQL BinaryExpression]"""
-    return this_mo_sql() - 7
-
-
-def calc_date_sql(week_day: Integer, day_time: Time):
-    """Конструирует дату по дню недели и времени дня на текущей неделе type::timestamp [SQL BinaryExpression]"""
-    MONDAY = this_mo_sql()
-    return MONDAY + week_day + day_time
-
-
-def make_interval(years=0, months=0, weeks=0, days=0):
-    """Возвращает объект type::interval"""
-    return func.make_interval(years, months, weeks, days)
-
-
-def tz_date_sql(date):
-    """Переводит date::timestamp в date::timestamptz"""
-    return func.timezone(settings.timezone, date)
-
-
 def calculate_date(week_day: int, day_time: datetime.time) -> datetime.datetime:
     """Конструирует дату по дню недели и времени дня на текущей неделе Aware"""
     MONDAY = this_mo()
@@ -65,3 +39,29 @@ def calculate_date(week_day: int, day_time: datetime.time) -> datetime.datetime:
 
 def day_stub() -> datetime.datetime:
     return datetime.datetime(2000, 1, 1, tzinfo=tz)
+
+
+def this_mo_sql() -> BinaryExpression:
+    """PostgreSQL function: Возвращает понедельник на текущей неделе type::timestamp (no TZ)"""
+    return func.current_date() + 1 - func.cast(func.extract("isodow", func.current_date()), Integer)
+
+
+def previous_mo_sql():
+    """PostgreSQL function: Возвращает понедельник на предыдущей неделе type::timestamp (no TZ)"""
+    return this_mo_sql() - 7
+
+
+def calc_date_sql(week_day: Integer, day_time: Time):
+    """PostgreSQL function: Конструирует дату по дню недели и времени дня на текущей неделе type::timestamp (no TZ)"""
+    MONDAY = this_mo_sql()
+    return MONDAY + week_day + day_time
+
+
+def make_interval_sql(years=0, months=0, weeks=0, days=0):
+    """PostgreSQL function: Возвращает объект type::interval"""
+    return func.make_interval(years, months, weeks, days)
+
+
+def tz_date_sql(date):
+    """PostgreSQL function: Переводит type::timestamp в type::timestamptz"""
+    return func.timezone(settings.timezone, date)

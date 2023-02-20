@@ -38,7 +38,7 @@ class Instructor(Base):
     credentials = Column(String)
     phone = Column(String, unique=True)
 
-    programs = relationship("Program", back_populates="instructor_")
+    programs = relationship("Program", back_populates="instructor_obj")
 
 
 class Program(Base):
@@ -54,8 +54,7 @@ class Program(Base):
     registration_opens = Column(Integer, nullable=True)
     available_registration = Column(Boolean, default=False)
 
-    instructor_ = relationship("Instructor", back_populates="programs")
-    schema_records = relationship("SchemaRecord", back_populates="program_")
+    instructor_obj = relationship("Instructor", back_populates="programs")
 
     to_model = program_to_model
 
@@ -82,8 +81,6 @@ class SchemaRecord(Base):
     day_time = Column(Time)
     duration = Column(Integer)
     program = Column(Integer, ForeignKey("program.id", ondelete="CASCADE"))
-
-    program_ = relationship("Program", back_populates="schema_records")
 
     to_model = record_to_model
 

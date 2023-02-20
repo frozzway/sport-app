@@ -9,7 +9,7 @@ def program_to_model(self) -> Program:
     nested_models = {
         "category": Category.construct(name=self.category),
         "placement": Category.construct(name=self.placement),
-        "instructor": InstructorPublic.from_orm(self.instructor_),
+        "instructor": InstructorPublic.from_orm(self.instructor_obj),
     }
     model = as_dict(self)
     model.update(nested_models)
