@@ -50,8 +50,8 @@ class ScheduleInstance(NamedTuple):
             if place_limit:
                 places_available = place_limit - self.booked_places
             if self.program.registration_opens:
-                pre_days = rd.relativedelta(days=self.program.registration_opens, hour=16)  # дней до открытия регистрации
-                registration_opens_at = self.date - pre_days
+                registration_period = rd.relativedelta(days=self.program.registration_opens, hour=16)
+                registration_opens_at = self.date - registration_period
 
         return models.ScheduleRecord(
                 program=self.program.to_model(),
@@ -70,7 +70,16 @@ class ScheduleService:
         self.schema_service = SchemaService(session)
 
     def _validate_active_schema(self):
-        pass
+        next_week_schema = self.schema_service.next_week_schema
+        active_schema = self.schema_service.active_schema
+        if next_week_schema:
+            start_date = next_week_schema.to_be_active_from
+            if utils.now() > start_date:
+                next_week_schema.to_be_active_from = None
+                next_week_schema.active = True
+                active_schema.active = False
+                self.session.commit()
+        return active_schema, next_week_schema
 
     def _get_grid(
         self,
@@ -121,9 +130,7 @@ class ScheduleService:
                 for row in self.session.execute(stmt).all()}
 
     def construct_schedule(self, filters: dict[str, Any]) -> list[models.ScheduleRecord]:
-        self._validate_active_schema()
-        active_schema = self.schema_service.active_schema
-        next_week_schema = self.schema_service.next_week_schema
+        active_schema, next_week_schema = self._validate_active_schema()
         booked_classes = self._count_booked_classes(filters)
         current_week_classes = self._get_grid(active_schema, filters)
         if next_week_schema:

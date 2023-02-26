@@ -104,7 +104,7 @@ class ClientService:
             date < utils.now(),
             utils.now() < program.registration_opens_at(date),
         ]):
-            raise HTTPException(status.HTTP_405_METHOD_NOT_ALLOWED)
+            raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY)
 
         if all([
             date >= utils.next_mo(),
@@ -121,22 +121,21 @@ class ClientService:
                 tables.SchemaRecord.week_day == date.weekday(),
                 tables.SchemaRecord.day_time == date.time(),
                 tables.SchemaRecord.program == program.id)
-            )
-            .scalar()
+            ).scalar()
         )
         if schema_record not in schema.records:
             raise HTTPException(status.HTTP_404_NOT_FOUND)
 
-        BC = tables.BookedClasses
-        stmt = (
-            select(func.count(BC.id))
-            .where(BC.date == date)
-            .where(BC.program == program.id)
-        )
-        booked_places = self.session.execute(stmt).scalar_one()
-        available_places = program.place_limit - booked_places
-        if not available_places:
-            raise HTTPException(status.HTTP_409_CONFLICT, detail="Отсутствуют свободные места")
+        if program.place_limit:
+            BC = tables.BookedClasses
+            booked_places = self.session.execute(
+                select(func.count(BC.id))
+                .where(BC.date == date)
+                .where(BC.program == program.id)
+            ).scalar_one()
+            available_places = program.place_limit - booked_places
+            if not available_places:
+                raise HTTPException(status.HTTP_409_CONFLICT, detail="Отсутствуют свободные места")
         try:
             place = tables.BookedClasses(client=client_id, program=program.id, date=date)
             self.session.add(place)

@@ -81,8 +81,11 @@ class InstructorService:
         instructor_id: int
     ):
         instructor = self._get(instructor_id)
-        self.session.delete(instructor)
-        self.session.commit()
+        try:
+            self.session.delete(instructor)
+            self.session.commit()
+        except IntegrityError:
+            raise HTTPException(status.HTTP_409_CONFLICT, detail="Инструктор задействован в расписании.")
         return
 
     def update_instructor(

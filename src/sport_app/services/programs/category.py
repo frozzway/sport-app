@@ -79,8 +79,11 @@ class CategoryService:
         name: str,
     ):
         category = self._get(name)
-        self.session.delete(category)
-        self.session.commit()
+        try:
+            self.session.delete(category)
+            self.session.commit()
+        except IntegrityError:
+            raise HTTPException(status.HTTP_409_CONFLICT, detail="Категория используется в программах.")
 
     def _get(
         self,

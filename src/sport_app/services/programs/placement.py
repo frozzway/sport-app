@@ -82,8 +82,11 @@ class PlacementService:
         name: str,
     ):
         placement = self._get(name)
-        self.session.delete(placement)
-        self.session.commit()
+        try:
+            self.session.delete(placement)
+            self.session.commit()
+        except IntegrityError:
+            raise HTTPException(status.HTTP_409_CONFLICT, detail="Помещение используется в программах.")
 
     def _get(
         self,

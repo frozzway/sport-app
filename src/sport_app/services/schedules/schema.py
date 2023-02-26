@@ -130,9 +130,9 @@ class SchemaService:
         obj_to_remove = [(r.program, r.date + interval)
                          for r in records
                          if r.date+interval > utils.now()]
-        self.remove_booked_rows(obj_to_remove)
+        self._remove_booked_rows(obj_to_remove)
 
-    def remove_booked_rows(self, rows: list[tuple[int, datetime.datetime]]):
+    def _remove_booked_rows(self, rows: list[tuple[int, datetime.datetime]]):
         """
         Removes rows from BookedClasses
         :param rows: int - id тренировочной программы, datetime.datetime - дата занятия
@@ -149,31 +149,31 @@ class SchemaService:
     def update_schema(
         self,
         schema_id: int,
-        schema_data: models.SchemaUpdate,
+        data: models.SchemaUpdate,
     ) -> tables.ScheduleSchema:
         target_schema = self._get_schema(schema_id)
         active_schema = self.active_schema
         next_week_schema = self.next_week_schema
 
         # активация схемы
-        if schema_data.active:
+        if data.active:
             self._compare_schemas(target_schema, active_schema)
             if not next_week_schema:
                 self._compare_schemas(target_schema, active_schema, next_week=True)
+            # если активируется схема, которая запланирована на следующую неделю
+            elif target_schema.id == next_week_schema.id:
+                target_schema.to_be_active_from = None
             active_schema.active = False
             target_schema.active = True
-            # если активируется схема, которая запланирована на следующую неделю
-            if next_week_schema and target_schema.id == next_week_schema.id:
-                target_schema.to_be_active_from = None
 
         # деактивация схемы
-        if schema_data.active is False:
+        if data.active is False:
             if target_schema.id == active_schema.id:
                 raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
                                     detail="Не допускается деактивация схемы")
 
         # установка схемы на следующую неделю
-        if schema_data.activate_next_week:
+        if data.activate_next_week:
             if target_schema.active:
                 raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
                                     detail="Схема уже активна")
@@ -182,7 +182,7 @@ class SchemaService:
                 next_week_schema.to_be_active_from = None
             target_schema.to_be_active_from = utils.next_mo()
 
-        for field, value in schema_data:
+        for field, value in data:
             if value:
                 setattr(target_schema, field, value)
         self.session.commit()
