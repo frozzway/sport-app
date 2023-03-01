@@ -2,7 +2,6 @@ from fastapi import (
     APIRouter,
     Depends,
     status,
-    Response
 )
 
 from ...models import (
@@ -75,4 +74,3 @@ def delete_instructor(
     instructor_service: InstructorService = Depends()
 ):
     instructor_service.delete_instructor(instructor_id)
-    return Response(status_code=status.HTTP_204_NO_CONTENT)

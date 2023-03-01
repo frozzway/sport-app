@@ -2,7 +2,6 @@ from fastapi import (
     APIRouter,
     Depends,
     status,
-    Response
 )
 
 from ...models import Program, CreateProgram
@@ -58,4 +57,4 @@ def delete_program(
     program_id: int,
     program_service: ProgramService = Depends()
 ):
-    return program_service.delete_program(program_id)
+    program_service.delete_program(program_id)

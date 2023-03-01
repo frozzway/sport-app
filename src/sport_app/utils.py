@@ -19,6 +19,29 @@ def now() -> datetime.datetime:
     return datetime.datetime.now(tz)
 
 
+def mo_on_week(year: int, week: int) -> datetime.datetime:
+    """Возвращает понедельник недели под номером :week_num в году :year"""
+    D = datetime.datetime(year, 1, 1, tzinfo=tz)
+    return D + rd.relativedelta(weeks=int(week), weekday=rd.MO(-1))
+
+
+def su_on_week(year: int, week: int) -> datetime.datetime:
+    """Возвращает воскресенье недели под номером :week_num в году :year"""
+    D = datetime.datetime(year, 1, 1, tzinfo=tz)
+    return D + rd.relativedelta(weeks=int(week), weekday=rd.SU(-1))
+
+
+def first_month_day(year: int, month: int) -> datetime.datetime:
+    """Возвращает первый день месяца :month в году :year"""
+    return datetime.datetime(year, month, 1, tzinfo=tz)
+
+
+def last_month_day(year: int, month: int) -> datetime.datetime:
+    """Возвращает последний день месяца :month в году :year"""
+    D = datetime.datetime(year, month + 1, 1, tzinfo=tz)
+    return D - rd.relativedelta(days=1)
+
+
 def next_mo() -> datetime.datetime:
     """Возвращает понедельник на следующей неделе Aware"""
     TODAY = today()

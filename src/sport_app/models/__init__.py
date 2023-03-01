@@ -2,6 +2,7 @@ from .programs import *
 from .schedules import *
 from .clients import *
 from .auth import *
+from .reports import *
 from ..database import as_dict
 
 

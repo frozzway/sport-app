@@ -104,7 +104,7 @@ class ClientService:
             date < utils.now(),
             utils.now() < program.registration_opens_at(date),
         ]):
-            raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY)
+            raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Регистрация закрыта")
 
         if all([
             date >= utils.next_mo(),
@@ -142,3 +142,27 @@ class ClientService:
             self.session.commit()
         except IntegrityError:
             raise HTTPException(status.HTTP_409_CONFLICT, detail="Клиент уже забронирован или не найден")
+
+    def remove_client_booking(
+        self,
+        client_id: int,
+        program: int,
+        date: datetime.datetime
+    ):
+        if date < utils.now():
+            raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY)
+        record = self.session.execute(
+            select(tables.BookedClasses)
+            .where(and_(
+                tables.BookedClasses.program == program,
+                tables.BookedClasses.client == client_id,
+                tables.BookedClasses.date == date)
+            )).scalar()
+        if not record:
+            raise HTTPException(status.HTTP_404_NOT_FOUND)
+        self.session.delete(record)
+        self.session.commit()
+
+
+
+

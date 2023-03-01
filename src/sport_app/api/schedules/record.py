@@ -11,14 +11,13 @@ from ...services.auth import validate_admin_access
 
 
 router = APIRouter(
-    prefix='/record',
     tags=['records'],
     dependencies=[Depends(validate_admin_access)],
 )
 
 
 @router.post(
-    '/',
+    '/record',
     response_model=SchemaRecord,
     status_code=status.HTTP_201_CREATED,
 )
@@ -30,7 +29,7 @@ def create_record(
 
 
 @router.get(
-    '/',
+    '/records',
     response_model=list[SchemaRecord]
 )
 def get_records(
@@ -40,7 +39,7 @@ def get_records(
 
 
 @router.delete(
-    '/{record_id}',
+    '/record/{record_id}',
     status_code=status.HTTP_204_NO_CONTENT,
 )
 def delete_record(

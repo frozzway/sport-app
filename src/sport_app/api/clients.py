@@ -4,7 +4,6 @@ from fastapi import (
     APIRouter,
     Depends,
     status,
-    Response
 )
 
 from ..models import Client, CreateClient, ClientUpdate
@@ -67,5 +66,19 @@ def book_client(
     date: datetime.datetime,
     client_service: ClientService = Depends(),
 ):
-    return client_service.book_client(client_id, program, date)
+    client_service.book_client(client_id, program, date)
+
+
+@router.delete(
+    '/{client_id}/book',
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(validate_operator_access)],
+)
+def remove_client_booking(
+    client_id: int,
+    program: int,
+    date: datetime.datetime,
+    client_service: ClientService = Depends(),
+):
+    client_service.remove_client_booking(client_id, program, date)
 

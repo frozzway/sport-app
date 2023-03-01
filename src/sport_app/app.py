@@ -1,7 +1,13 @@
 from fastapi import FastAPI
-from . import (
-    api
-)
+from fastapi.routing import APIRoute
+from . import api
+
+
+def use_route_names_as_operation_ids(app: FastAPI) -> None:
+    for route in app.routes:
+        if isinstance(route, APIRoute):
+            route.operation_id = route.name
+
 
 tags_metadata = [
     {
@@ -40,8 +46,13 @@ tags_metadata = [
         'name': 'auth',
         'description': 'Аутентификация'
     },
+    {
+        'name': 'reports',
+        'description': 'Отчеты'
+    }
 ]
 
 app = FastAPI(openapi_tags=tags_metadata)
 
 app.include_router(api.router)
+use_route_names_as_operation_ids(app)

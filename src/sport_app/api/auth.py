@@ -1,4 +1,7 @@
-from fastapi import APIRouter, Depends
+from fastapi import (
+    APIRouter,
+    Depends,
+)
 from fastapi.security import OAuth2PasswordRequestForm
 
 from ..models import Token, StaffCreate

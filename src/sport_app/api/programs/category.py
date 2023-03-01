@@ -2,7 +2,6 @@ from fastapi import (
     APIRouter,
     Depends,
     status,
-    Response
 )
 
 from ...models import Category
@@ -62,4 +61,3 @@ def delete_category(
     category_service: CategoryService = Depends()
 ):
     category_service.delete_category(category_name)
-    return Response(status_code=status.HTTP_204_NO_CONTENT)

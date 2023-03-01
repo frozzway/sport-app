@@ -2,7 +2,6 @@ from fastapi import (
     APIRouter,
     Depends,
     status,
-    Response
 )
 
 from ...models import Placement
@@ -62,4 +61,3 @@ def delete_placement(
     placement_service: PlacementService = Depends()
 ):
     placement_service.delete_placement(placement_name)
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
