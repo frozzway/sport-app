@@ -23,6 +23,9 @@ class Category(Base):
     __tablename__ = "category"
 
     name = Column(String, primary_key=True)
+    color = Column(String)
+
+    programs = relationship("Program", back_populates="category_obj")
 
 
 class Placement(Base):
@@ -54,6 +57,7 @@ class Program(Base):
     registration_opens = Column(Integer, nullable=True)
     available_registration = Column(Boolean, default=False)
 
+    category_obj = relationship("Category", back_populates="programs")
     instructor_obj = relationship("Instructor", back_populates="programs")
 
     to_model = program_to_model

@@ -5,6 +5,8 @@ class Settings(BaseSettings):
     server_host: str = '127.0.0.1'
     server_port: int = '8000'
 
+    angular_port: int = '4200'
+
     db_dialect: str = 'postgresql'
     db_username: str = 'admin'
     db_password: str = '123'
@@ -16,7 +18,7 @@ class Settings(BaseSettings):
 
     jwt_secret: str = ''
     jwt_algorithm: str = 'HS256'
-    jwt_expires_s: int = 3600
+    jwt_expires_s: int = 360000
 
 
 settings = Settings(

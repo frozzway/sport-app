@@ -52,5 +52,6 @@ class SchemaRecord(SchemaRecordBase):
 class ScheduleRecord(BaseModel):
     program: Program
     date: datetime.datetime
+    duration: int
     registration_opens_at: Optional[datetime.datetime]
     places_available: Optional[int]

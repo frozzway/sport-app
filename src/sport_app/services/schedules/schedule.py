@@ -28,6 +28,7 @@ class ScheduleInstance(NamedTuple):
     сложности алгоритма construct_schedule()
     """
     program: tables.Program
+    duration: int
     date: datetime.datetime
     booked_places: Optional[int] = 0
 
@@ -55,6 +56,7 @@ class ScheduleInstance(NamedTuple):
 
         return models.ScheduleRecord(
                 program=self.program.to_model(),
+                duration=self.duration,
                 places_available=places_available,
                 registration_opens_at=registration_opens_at,
                 date=self.date,
@@ -94,14 +96,14 @@ class ScheduleService:
             .where(SSR.c.schedule_schema == schema.id)
         ), filters)
         return \
-            {ScheduleInstance(program=row.Program, date=row.SchemaRecord.date)
+            {ScheduleInstance(program=row.Program, duration=row.SchemaRecord.duration, date=row.SchemaRecord.date)
                 for row in self.session.execute(stmt).all()}
 
     @staticmethod
     def _prolong_grid(grid: Iterable[ScheduleInstance]) -> set[ScheduleInstance]:
         week = rd.relativedelta(days=7)
         return \
-            {ScheduleInstance(program=obj.program, date=obj.date + week)
+            {ScheduleInstance(program=obj.program, duration=obj.duration, date=obj.date + week)
                 for obj in grid}
 
     @staticmethod
@@ -119,14 +121,16 @@ class ScheduleService:
         (ScheduleInstance), на которые кто-то записался.
         """
         BC = tables.BookedClasses
+        SR = tables.SchemaRecord
         stmt = self._apply_filters((
-            select(tables.Program, BC.date, func.count(BC.id))
+            select(tables.Program, BC.date, SR.duration, func.count(BC.id))
             .join(BC)
+            .join(SR)
             .where(BC.date > func.now())
-            .group_by(tables.Program, BC.date)
+            .group_by(tables.Program, BC.date, SR.duration)
         ), filters)
         return \
-            {ScheduleInstance(program=row.Program, date=row.date, booked_places=row.count)
+            {ScheduleInstance(program=row.Program, date=row.date, duration=row.duration, booked_places=row.count)
                 for row in self.session.execute(stmt).all()}
 
     def construct_schedule(self, filters: dict[str, Any]) -> list[models.ScheduleRecord]:

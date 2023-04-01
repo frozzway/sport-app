@@ -8,7 +8,7 @@ from ..database import as_dict
 
 def program_to_model(self) -> Program:
     nested_models = {
-        "category": Category.construct(name=self.category),
+        "category": Category.from_orm(self.category_obj),
         "placement": Category.construct(name=self.placement),
         "instructor": InstructorPublic.from_orm(self.instructor_obj),
     }

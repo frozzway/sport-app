@@ -8,6 +8,7 @@ from pydantic import (
 
 class Category(BaseModel):
     name: str = Field(max_length=100)
+    color: str = Field(max_length=20)
 
     class Config:
         orm_mode = True
