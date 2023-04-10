@@ -57,6 +57,14 @@ class ClientService:
     ) -> tables.Client:
         return self._get_client(client_id)
 
+    def get_many(self) -> list[tables.Client]:
+        clients = (
+            self.session
+            .query(tables.Client)
+            .all()
+        )
+        return clients
+
     def create_client(
         self,
         client_data: models.CreateClient

@@ -36,6 +36,7 @@ class InstructorUpdate(BaseInstructor):
 
 class Instructor(BaseInstructor):
     id: int
+    photo_src: Optional[str]
 
     class Config:
         orm_mode = True
@@ -44,6 +45,7 @@ class Instructor(BaseInstructor):
 class InstructorPublic(BaseModel):
     id: int
     credentials: str
+    photo_src: Optional[str]
 
     class Config:
         orm_mode = True

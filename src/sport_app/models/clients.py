@@ -16,6 +16,14 @@ class Client(BaseClient):
         orm_mode = True
 
 
+class ClientMinimum(BaseModel):
+    id: int
+    credentials: str = Field(max_length=100)
+
+    class Config:
+        orm_mode = True
+
+
 class CreateClient(BaseClient):
     pass
 

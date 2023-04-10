@@ -40,6 +40,7 @@ class Instructor(Base):
     id = Column(Integer, primary_key=True)
     credentials = Column(String)
     phone = Column(String, unique=True)
+    photo_token = Column(String, nullable=True)
 
     programs = relationship("Program", back_populates="instructor_obj")
 

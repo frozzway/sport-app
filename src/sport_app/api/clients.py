@@ -6,7 +6,7 @@ from fastapi import (
     status,
 )
 
-from ..models import Client, CreateClient, ClientUpdate
+from ..models import Client, CreateClient, ClientUpdate, ClientMinimum
 from ..services import ClientService
 from ..services.auth import validate_admin_access, validate_operator_access
 
@@ -15,6 +15,17 @@ router = APIRouter(
     prefix='/client',
     tags=['clients']
 )
+
+
+@router.get(
+    '/',
+    response_model=list[ClientMinimum],
+    dependencies=[Depends(validate_operator_access)]
+)
+def get_clients(
+    client_service: ClientService = Depends(),
+):
+    return client_service.get_many()
 
 
 @router.get(

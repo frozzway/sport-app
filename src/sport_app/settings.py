@@ -1,4 +1,5 @@
 from pydantic import BaseSettings
+from pathlib import Path
 
 
 class Settings(BaseSettings):
@@ -19,6 +20,8 @@ class Settings(BaseSettings):
     jwt_secret: str = ''
     jwt_algorithm: str = 'HS256'
     jwt_expires_s: int = 360000
+
+    images_path = 'images'
 
 
 settings = Settings(
