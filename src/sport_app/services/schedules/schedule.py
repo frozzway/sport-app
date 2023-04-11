@@ -23,9 +23,9 @@ from ... import (
 
 class ScheduleInstance(NamedTuple):
     """
-    Определяет занятие в сформированном расписании. Используется как элемент множеств, возвращаемых _get_grid() и
-    _count_booked_classes(). Множества, set[ScheduleInstance], применяются в construct_schedule() для уменьшения
-    сложности алгоритма construct_schedule()
+    Определяет занятие в сформированном расписании. Используется как элемент словарей, возвращаемых _get_grid() и
+    _count_booked_classes(). В словаре, dict[str, ScheduleInstance] ключ - это hash значение id программы и даты
+    проведения занятия
     """
     program: tables.Program
     duration: int
@@ -87,7 +87,7 @@ class ScheduleService:
         self,
         schema: tables.ScheduleSchema,
         filters: dict[str, Any]
-    ) -> set[ScheduleInstance]:
+    ) -> dict[str, ScheduleInstance]:
         SSR = tables.schedule_schema_record
         stmt = self._apply_filters((
             select(tables.Program, tables.SchemaRecord)
@@ -96,15 +96,17 @@ class ScheduleService:
             .where(SSR.c.schedule_schema == schema.id)
         ), filters)
         return \
-            {ScheduleInstance(program=row.Program, duration=row.SchemaRecord.duration, date=row.SchemaRecord.date)
+            {hash((row.Program.id, row.SchemaRecord.date)):
+                ScheduleInstance(program=row.Program, duration=row.SchemaRecord.duration, date=row.SchemaRecord.date)
                 for row in self.session.execute(stmt).all()}
 
     @staticmethod
-    def _prolong_grid(grid: Iterable[ScheduleInstance]) -> set[ScheduleInstance]:
+    def _prolong_grid(grid: dict[str, ScheduleInstance]) -> dict[str, ScheduleInstance]:
         week = rd.relativedelta(days=7)
         return \
-            {ScheduleInstance(program=obj.program, duration=obj.duration, date=obj.date + week)
-                for obj in grid}
+            {hash((obj.program.id, obj.date + week)):
+                ScheduleInstance(program=obj.program, duration=obj.duration, date=obj.date + week)
+                for obj in grid.values()}
 
     @staticmethod
     def _apply_filters(stmt: Select, filters: dict[str, Any]):
@@ -114,23 +116,19 @@ class ScheduleService:
                 stmt = stmt.where(cond)
         return stmt
 
-    def _count_booked_classes(self, filters: dict[str, Any]) -> set[ScheduleInstance]:
+    def _count_booked_classes(self, filters: dict[str, Any]) -> dict[str, int]:
         """
-        Обращается к базе данных с целью подсчитать количество забронированных мест на занятия. Выполняет
-        запрос, в котором есть join с таблицей BookedClasses. В связи с чем возвращает только те занятия
-        (ScheduleInstance), на которые кто-то записался.
+        Обращается к базе данных с целью подсчитать количество забронированных мест на занятия.
         """
         BC = tables.BookedClasses
-        SR = tables.SchemaRecord
         stmt = self._apply_filters((
-            select(tables.Program, BC.date, SR.duration, func.count(BC.id))
+            select(tables.Program, BC.date, func.count(BC.id))
             .join(BC)
-            .join(SR)
             .where(BC.date > func.now())
-            .group_by(tables.Program, BC.date, SR.duration)
+            .group_by(tables.Program, BC.date)
         ), filters)
         return \
-            {ScheduleInstance(program=row.Program, date=row.date, duration=row.duration, booked_places=row.count)
+            {hash((row.Program.id, row.date)): row.count
                 for row in self.session.execute(stmt).all()}
 
     def construct_schedule(self, filters: dict[str, Any]) -> list[models.ScheduleRecord]:
@@ -142,5 +140,7 @@ class ScheduleService:
             next_week_classes = self._prolong_grid(grid)
         else:
             next_week_classes = self._prolong_grid(current_week_classes)
-        response = booked_classes | current_week_classes | next_week_classes
-        return [obj.to_model() for obj in response]
+        response = current_week_classes | next_week_classes
+        for k, booked_places in booked_classes.items():
+            response[k] = response[k]._replace(booked_places=booked_places)
+        return [obj.to_model() for obj in response.values()]

@@ -149,7 +149,7 @@ class ClientService:
             self.session.add(place)
             self.session.commit()
         except IntegrityError:
-            raise HTTPException(status.HTTP_409_CONFLICT, detail="Клиент уже забронирован или не найден")
+            raise HTTPException(status.HTTP_409_CONFLICT, detail="Клиент уже записан или не найден")
 
     def remove_client_booking(
         self,
