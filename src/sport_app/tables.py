@@ -50,8 +50,8 @@ class Program(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
-    category = Column(String, ForeignKey("category.name", onupdate="CASCADE"))
-    placement = Column(String, ForeignKey("placement.name", onupdate="CASCADE"))
+    category = Column(String, ForeignKey("category.name", onupdate="CASCADE", ondelete="RESTRICT"))
+    placement = Column(String, ForeignKey("placement.name", onupdate="CASCADE", ondelete="RESTRICT"))
     instructor = Column(Integer, ForeignKey("instructor.id"))
     paid = Column(Boolean)
     place_limit = Column(Integer, nullable=True)

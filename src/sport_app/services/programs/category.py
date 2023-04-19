@@ -7,6 +7,7 @@ from fastapi import (
     HTTPException,
     status
 )
+from sqlalchemy import delete
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -80,7 +81,7 @@ class CategoryService:
     ):
         category = self._get(name)
         try:
-            self.session.delete(category)
+            self.session.execute(delete(tables.Category).where(tables.Category.name == name))
             self.session.commit()
         except IntegrityError:
             raise HTTPException(status.HTTP_409_CONFLICT, detail="Категория используется в программах.")

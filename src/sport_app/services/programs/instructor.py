@@ -10,6 +10,7 @@ from fastapi import (
     status
 )
 from fastapi import UploadFile
+from sqlalchemy import delete
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -120,7 +121,7 @@ class InstructorService:
     ):
         instructor = self._get(instructor_id)
         try:
-            self.session.delete(instructor)
+            self.session.execute(delete(tables.Instructor).where(tables.Instructor.id == instructor_id))
             self.session.commit()
         except IntegrityError:
             raise HTTPException(status.HTTP_409_CONFLICT, detail="Инструктор задействован в расписании.")

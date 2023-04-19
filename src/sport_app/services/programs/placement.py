@@ -7,6 +7,7 @@ from fastapi import (
     HTTPException,
     status
 )
+from sqlalchemy import delete
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -83,7 +84,7 @@ class PlacementService:
     ):
         placement = self._get(name)
         try:
-            self.session.delete(placement)
+            self.session.execute(delete(tables.Placement).where(tables.Placement.name == name))
             self.session.commit()
         except IntegrityError:
             raise HTTPException(status.HTTP_409_CONFLICT, detail="Помещение используется в программах.")
