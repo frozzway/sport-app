@@ -141,7 +141,6 @@ class SchemaService:
         self.session.execute(
             delete(B)
             .where(tuple_(B.program, B.date).in_(rows))
-            .all()
         )
         self.session.flush()
 
@@ -230,8 +229,8 @@ class SchemaService:
         table = tables.schedule_schema_record
         self.session.execute(
             delete(table)
-            .where(table.schema_record.in_(records_to_exclude))
-            .where(table.schedule_schema == schema_id)
+            .where(table.columns.schema_record.in_(records_to_exclude))
+            .where(table.columns.schedule_schema == schema_id)
         )
         self.session.flush()
 

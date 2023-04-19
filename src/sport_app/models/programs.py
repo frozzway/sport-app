@@ -1,4 +1,5 @@
 from typing import Optional
+from typing import Union
 
 from pydantic import (
     BaseModel,
@@ -7,22 +8,22 @@ from pydantic import (
 
 
 class Category(BaseModel):
-    name: str = Field(max_length=100)
-    color: str = Field(max_length=20)
+    name: str = Field(min_length=3, max_length=100)
+    color: Optional[str] = Field(max_length=20)
 
     class Config:
         orm_mode = True
 
 
 class Placement(BaseModel):
-    name: str = Field(max_length=100)
+    name: str = Field(min_length=3, max_length=100)
 
     class Config:
         orm_mode = True
 
 
 class BaseInstructor(BaseModel):
-    credentials: str = Field(max_length=100)
+    credentials: str = Field(min_length=3, max_length=100)
     phone: str
 
 
@@ -63,7 +64,9 @@ class BaseProgram(BaseModel):
 
 
 class CreateProgram(BaseProgram):
-    pass
+    category: Union[Category, str]
+    placement: Union[Placement, str]
+    instructor: Union[Instructor, int]
 
 
 class Program(BaseProgram):

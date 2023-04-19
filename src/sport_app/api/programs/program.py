@@ -11,6 +11,7 @@ from ...services.auth import validate_admin_access
 
 router = APIRouter(
     tags=['programs'],
+    dependencies=[Depends(validate_admin_access)]
 )
 
 

@@ -19,7 +19,7 @@ def program_to_model(self) -> Program:
 
 def record_to_model(self) -> SchemaRecord:
     nested_models = {
-        "program": self.program_.to_model()
+        "program": self.program_obj.to_model()
     }
     model = as_dict(self)
     model.update(nested_models)

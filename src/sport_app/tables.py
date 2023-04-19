@@ -60,6 +60,7 @@ class Program(Base):
 
     category_obj = relationship("Category", back_populates="programs")
     instructor_obj = relationship("Instructor", back_populates="programs")
+    schema_records = relationship("SchemaRecord", back_populates="program_obj")
 
     to_model = program_to_model
 
@@ -87,6 +88,7 @@ class SchemaRecord(Base):
     duration = Column(Integer)
     program = Column(Integer, ForeignKey("program.id", ondelete="CASCADE"))
 
+    program_obj = relationship("Program", back_populates="schema_records")
     to_model = record_to_model
 
     @property

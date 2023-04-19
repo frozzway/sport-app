@@ -3,7 +3,7 @@ from pathlib import Path
 
 
 class Settings(BaseSettings):
-    server_host: str = '127.0.0.1'
+    server_host: str = '0.0.0.0'
     server_port: int = '8000'
 
     angular_port: int = '4200'
