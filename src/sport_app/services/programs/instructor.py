@@ -65,16 +65,21 @@ class InstructorService:
 
         return model
 
-
     def get_many(
         self
-    ) -> list[tables.Instructor]:
+    ) -> list[models.Instructor]:
         instructors = (
             self.session
             .query(tables.Instructor)
             .all()
         )
-        return instructors
+        instructors_models = []
+        for instructor in instructors:
+            model = models.Instructor.from_orm(instructor)
+            if t := instructor.photo_token:
+                model.photo_src = f'{settings.images_path}/instructors/{t}.jpg'
+            instructors_models.append(model)
+        return instructors_models
 
     def create_instructor(
         self,
