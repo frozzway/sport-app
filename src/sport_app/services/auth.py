@@ -21,19 +21,21 @@ def get_current_staff(token: str = Depends(oauth2_scheme)) -> models.Staff:
     return AuthService.verify_token(token)
 
 
-def validate_admin_access(staff_member: models.Staff = Depends(get_current_staff)):
+def validate_admin_access(staff_member: models.Staff = Depends(get_current_staff)) -> models.Staff:
     if staff_member.role != "staff_role.admin":
         raise HTTPException(status.HTTP_403_FORBIDDEN)
+    return staff_member
 
 
-def validate_operator_access(staff_member: models.Staff = Depends(get_current_staff)):
+def validate_operator_access(staff_member: models.Staff = Depends(get_current_staff)) -> models.Staff:
     try:
         validate_admin_access(staff_member)
-        return
+        return staff_member
     except HTTPException:
         pass
     if staff_member.role != "staff_role.operator":
         raise HTTPException(status.HTTP_403_FORBIDDEN)
+    return staff_member
 
 
 class AuthService:

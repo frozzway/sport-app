@@ -12,6 +12,7 @@ from ...services.auth import validate_admin_access
 router = APIRouter(
     prefix='/category',
     tags=['categories'],
+    dependencies=[Depends(validate_admin_access)]
 )
 
 
@@ -29,7 +30,6 @@ def get_categories(
     '/',
     response_model=Category,
     status_code=status.HTTP_201_CREATED,
-    dependencies=[Depends(validate_admin_access)],
 )
 def create_category(
     category_data: Category,
@@ -41,7 +41,6 @@ def create_category(
 @router.put(
     '/{category_name}',
     response_model=Category,
-    dependencies=[Depends(validate_admin_access)],
 )
 def update_category(
     category_name: str,
@@ -54,7 +53,6 @@ def update_category(
 @router.delete(
     '/{category_name}',
     status_code=status.HTTP_204_NO_CONTENT,
-    dependencies=[Depends(validate_admin_access)],
 )
 def delete_category(
     category_name: str,

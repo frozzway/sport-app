@@ -1,4 +1,5 @@
 import datetime
+from typing import Union
 
 from fastapi import (
     APIRouter,
@@ -6,7 +7,7 @@ from fastapi import (
     status,
 )
 
-from ..models import Client, CreateClient, ClientUpdate, ClientMinimum
+from ..models import Client, CreateClient, ClientUpdate, ClientMinimum, Staff
 from ..services import ClientService
 from ..services.auth import validate_admin_access, validate_operator_access
 
@@ -19,13 +20,13 @@ router = APIRouter(
 
 @router.get(
     '/',
-    response_model=list[ClientMinimum],
-    dependencies=[Depends(validate_operator_access)]
+    response_model=Union[list[Client], list[ClientMinimum]]
 )
 def get_clients(
+    staff_member: Staff = Depends(validate_operator_access),
     client_service: ClientService = Depends(),
 ):
-    return client_service.get_many()
+    return client_service.get_many(staff_member)
 
 
 @router.get(
@@ -38,6 +39,18 @@ def get_client(
     client_service: ClientService = Depends(),
 ):
     return client_service.get_client(client_id)
+
+
+@router.delete(
+    '/{client_id}',
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(validate_admin_access)],
+)
+def delete_client(
+    client_id: int,
+    client_service: ClientService = Depends(),
+):
+    client_service.delete_client(client_id)
 
 
 @router.post(

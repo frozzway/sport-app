@@ -6,6 +6,7 @@ from fastapi import (
     HTTPException,
     status
 )
+from sqlalchemy import delete
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from sqlalchemy import select, func
@@ -57,12 +58,19 @@ class ClientService:
     ) -> tables.Client:
         return self._get_client(client_id)
 
-    def get_many(self) -> list[tables.Client]:
+    def get_many(
+        self,
+        staff_member: models.Staff
+    ) -> list[tables.Client]:
         clients = (
             self.session
             .query(tables.Client)
             .all()
         )
+        if staff_member.role == 'staff_role.admin':
+            clients = [models.Client.from_orm(c) for c in clients]
+        else:
+            clients = [models.ClientMinimum.from_orm(c) for c in clients]
         return clients
 
     def create_client(
@@ -93,6 +101,17 @@ class ClientService:
             self.session.rollback()
             raise ClientService.exception from None
         return client
+
+    def delete_client(
+        self,
+        client_id: int
+    ):
+        client = self.get_client(client_id)
+        try:
+            self.session.delete(client)
+            self.session.commit()
+        except IntegrityError:
+            raise HTTPException(status.HTTP_409_CONFLICT)
 
     def book_client(
         self,
