@@ -8,6 +8,8 @@ from jose import (
 )
 from passlib.hash import bcrypt
 from pydantic import ValidationError
+from sqlalchemy import delete
+from sqlalchemy.exc import IntegrityError
 
 from ..database import Session, get_session
 from ..settings import settings
@@ -97,7 +99,7 @@ class AuthService:
     def register_new_staff(
         self,
         user_data: models.StaffCreate,
-    ) -> models.Token:
+    ) -> models.Staff:
         user = tables.Staff(
             email=user_data.email,
             username=user_data.username,
@@ -106,7 +108,7 @@ class AuthService:
         )
         self.session.add(user)
         self.session.commit()
-        return self.create_token(user)
+        return user
 
     def authenticate_staff(
         self,
@@ -140,3 +142,28 @@ class AuthService:
             .all()
         )
         return staff
+
+    def _get_staff(
+        self,
+        staff_id: int,
+    ) -> tables.Staff:
+        staff = (
+            self.session
+            .query(tables.Staff)
+            .where(tables.Staff.id == staff_id)
+            .scalar()
+        )
+        if not staff:
+            raise HTTPException(status.HTTP_404_NOT_FOUND)
+        return staff
+
+    def delete_staff(
+        self,
+        staff_id: int
+    ):
+        staff = self._get_staff(staff_id)
+        try:
+            self.session.execute(delete(tables.Staff).where(tables.Staff.id == staff_id))
+            self.session.commit()
+        except IntegrityError:
+            raise HTTPException(status.HTTP_409_CONFLICT)

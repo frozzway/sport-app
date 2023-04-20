@@ -1,6 +1,7 @@
 from fastapi import (
     APIRouter,
     Depends,
+    status
 )
 from fastapi.security import OAuth2PasswordRequestForm
 
@@ -28,8 +29,8 @@ def sign_in(
 
 
 @router.post(
-    '/sign-up',
-    response_model=Token,
+    '/staff/sign-up',
+    response_model=Staff,
     dependencies=[Depends(validate_admin_access)],
     description='Регистрация сотрудника'
 )
@@ -42,9 +43,22 @@ def sign_up(
 
 @router.get(
     '/staff',
-    response_model=list[Staff]
+    response_model=list[Staff],
+    dependencies=[Depends(validate_admin_access)],
 )
 def get_all_staff(
     auth_service: AuthService = Depends(),
 ):
     return auth_service.get_all_staff()
+
+
+@router.delete(
+    '/staff/{staff_id}',
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(validate_admin_access)],
+)
+def delete_staff(
+    staff_id: int,
+    auth_service: AuthService = Depends(),
+):
+    auth_service.delete_staff(staff_id)
