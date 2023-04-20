@@ -4,6 +4,7 @@ from fastapi import (
 )
 from fastapi.security import OAuth2PasswordRequestForm
 
+from ..models import Staff
 from ..models import Token, StaffCreate
 from ..services import AuthService
 from ..services.auth import validate_admin_access
@@ -37,3 +38,13 @@ def sign_up(
     auth_service: AuthService = Depends(),
 ):
     return auth_service.register_new_staff(staff_data)
+
+
+@router.get(
+    '/staff',
+    response_model=list[Staff]
+)
+def get_all_staff(
+    auth_service: AuthService = Depends(),
+):
+    return auth_service.get_all_staff()

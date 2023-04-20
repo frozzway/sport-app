@@ -7,6 +7,7 @@ from fastapi import (
     HTTPException,
     status
 )
+from sqlalchemy import delete
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -72,5 +73,8 @@ class ProgramService:
 
     def delete_program(self, program_id: int):
         program = self._get(program_id)
-        self.session.delete(program)
-        self.session.commit()
+        try:
+            self.session.execute(delete(tables.Program).where(tables.Program.id == program_id))
+            self.session.commit()
+        except IntegrityError:
+            raise HTTPException(status.HTTP_409_CONFLICT)

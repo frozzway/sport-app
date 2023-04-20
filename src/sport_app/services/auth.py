@@ -132,3 +132,11 @@ class AuthService:
             raise exception
 
         return self.create_token(user)
+
+    def get_all_staff(self) -> list[models.Staff]:
+        staff = (
+            self.session
+            .query(tables.Staff)
+            .all()
+        )
+        return staff
