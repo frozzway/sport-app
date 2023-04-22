@@ -25,7 +25,7 @@ def create_record(
     record_data: SchemaRecordCreate,
     record_service: RecordService = Depends()
 ):
-    return record_service.create_record(record_data)
+    return record_service.get_or_create_record(record_data)
 
 
 @router.get(

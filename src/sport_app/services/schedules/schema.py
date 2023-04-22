@@ -1,5 +1,5 @@
 import datetime
-from typing import Optional, Union
+from typing import NamedTuple, Optional, Union
 from collections.abc import Iterable
 
 from fastapi import (
@@ -9,7 +9,7 @@ from fastapi import (
 )
 from dateutil import relativedelta as rd
 from sqlalchemy.orm import Session
-from sqlalchemy import delete, tuple_
+from sqlalchemy import delete, tuple_, select
 
 from ...database import get_session
 
@@ -144,7 +144,6 @@ class SchemaService:
         )
         self.session.flush()
 
-    # Нуждается в тестировании
     def update_schema(
         self,
         schema_id: int,

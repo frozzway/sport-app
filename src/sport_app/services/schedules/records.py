@@ -23,10 +23,19 @@ class RecordService:
         self.session = session
         self.schema_service = SchemaService(session)
 
-    def create_record(
+    def get_or_create_record(
         self,
         record_data: models.SchemaRecordCreate,
     ) -> models.SchemaRecord:
+        schedule_record = self.session.query(tables.SchemaRecord).filter_by(**record_data.dict()).first()
+        if not schedule_record:
+            schedule_record = self.create_record(record_data)
+        return schedule_record.to_model()
+
+    def create_record(
+        self,
+        record_data: models.SchemaRecordCreate,
+    ) -> tables.SchemaRecord:
         schedule_record = tables.SchemaRecord(
             **record_data.dict()
         )
@@ -36,7 +45,7 @@ class RecordService:
         except IntegrityError:
             self.session.rollback()
             raise HTTPException(status.HTTP_409_CONFLICT, "Тренировочная программа не существует")
-        return schedule_record.to_model()
+        return schedule_record
 
     def get_many(self) -> list[models.SchemaRecord]:
         records = self.session.query(tables.SchemaRecord).all()
@@ -74,3 +83,4 @@ class RecordService:
         if not record:
             raise HTTPException(status.HTTP_404_NOT_FOUND)
         return record
+
