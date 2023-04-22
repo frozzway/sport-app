@@ -99,7 +99,8 @@ def include_records_in_schema(
 def exclude_records_from_schema(
     schema_id: int,
     records: list[int],
+    force_delete: bool = True,
     schema_service: SchemaService = Depends()
 ):
-    schema_service.exclude_records_from_schema(schema_id, records)
+    schema_service.exclude_records_from_schema(schema_id, records, force_delete)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

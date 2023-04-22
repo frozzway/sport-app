@@ -215,7 +215,8 @@ class SchemaService:
     def exclude_records_from_schema_(
         self,
         schema_id: int,
-        records_to_exclude: list[int]
+        records_to_exclude: list[int],
+        force_delete: bool = False,
     ):
         schema = self._get_schema(schema_id)
 
@@ -232,12 +233,20 @@ class SchemaService:
             .where(table.columns.schema_record.in_(records_to_exclude))
             .where(table.columns.schedule_schema == schema_id)
         )
+
+        if force_delete:
+            for record in records_to_exclude:
+                rows = self.session.query(table).where(table.c.schema_record == record).all()
+                if not rows:
+                    self.session.execute(delete(tables.SchemaRecord).where(tables.SchemaRecord.id == record))
+
         self.session.flush()
 
     def exclude_records_from_schema(
         self,
         schema_id: int,
-        records_to_exclude: list[int]
+        records_to_exclude: list[int],
+        force_delete: bool,
     ):
-        self.exclude_records_from_schema_(schema_id, records_to_exclude)
+        self.exclude_records_from_schema_(schema_id, records_to_exclude, force_delete)
         self.session.commit()
