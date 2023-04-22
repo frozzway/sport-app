@@ -21,25 +21,20 @@ class ReportsService:
         self.session = session
 
     def client_report(self, client_id: int, period: models.Periods) -> list[models.ClientReport]:
-        """Отчёт о видах и количестве посещенных занятиях клиентом"""
+        """Отчёт о видах и количестве посещенных занятиях клиентом в динамике"""
         BC = tables.BookedClasses
-        subq = (
-            select(tables.Program, BC.date)
-            .join(BC)
-            .where(BC.client == client_id)
-            .subquery()
-        )
-        program = aliased(tables.Program, subq)
-        program_cols = subq.c._all_columns[:-1]  # issue #9690 sqlalchemy workaround
+
         rows = self.session.execute(
             select(
-                func.extract("year", subq.c.date).label("year"),
-                func.extract(period.name, subq.c.date).label("period"),
-                func.count(subq.c.id),
-                program
+                func.extract("year", BC.date).label("year"),
+                func.extract(period.name, BC.date).label("period"),
+                func.count(BC.id),
+                tables.Program
             )
-            .group_by("year", "period", *program_cols)
-            .order_by(subq.c.id, desc("year"), desc("period"))
+            .join(BC)
+            .where(BC.client == client_id)
+            .group_by("year", "period", tables.Program)
+            .order_by(tables.Program.id, desc("year"), desc("period"))
         ).all()
 
         response = {}
