@@ -2,7 +2,7 @@ from fastapi import (
     APIRouter,
     Depends,
 )
-from ..models import ClientReport, ProgramsReportResponse, ProgramsReport
+from ..models import ClientReport, ProgramsReportResponse, ProgramsReport, Periods
 from ..services.auth import validate_admin_access, validate_operator_access
 from ..services.reports import ReportsService
 
@@ -20,9 +20,10 @@ router = APIRouter(
 )
 def get_client_report(
     client_id: int,
+    period: Periods,
     report_service: ReportsService = Depends()
 ):
-    return report_service.client_report(client_id)
+    return report_service.client_report(client_id, period)
 
 
 @router.post(

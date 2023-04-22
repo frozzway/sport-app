@@ -3,6 +3,7 @@ from fastapi import (
 )
 from sqlalchemy.orm import Session
 from sqlalchemy import select, func, desc
+from sqlalchemy.orm import aliased
 
 from ..database import get_session
 from .. import (
@@ -19,18 +20,42 @@ class ReportsService:
     ):
         self.session = session
 
-    def client_report(self, client_id: int) -> list[models.ClientReport]:
+    def client_report(self, client_id: int, period: models.Periods) -> list[models.ClientReport]:
         """Отчёт о видах и количестве посещенных занятиях клиентом"""
         BC = tables.BookedClasses
-        rows = self.session.execute(
-            select(tables.Program, func.count(BC.id).label("amount"))
+        subq = (
+            select(tables.Program, BC.date)
             .join(BC)
             .where(BC.client == client_id)
-            .group_by(tables.Program)
-            .order_by(desc("amount"))
+            .subquery()
+        )
+        program = aliased(tables.Program, subq)
+        program_cols = subq.c._all_columns[:-1]  # issue #9690 sqlalchemy workaround
+        rows = self.session.execute(
+            select(
+                func.extract("year", subq.c.date).label("year"),
+                func.extract(period.name, subq.c.date).label("period"),
+                func.count(subq.c.id),
+                program
+            )
+            .group_by("year", "period", *program_cols)
+            .order_by(subq.c.id, desc("year"), desc("period"))
         ).all()
-        return [models.ClientReport.construct(program=r.Program.to_model(), booked_amount=r.amount)
-                for r in rows]
+
+        response = {}
+        for row in rows:
+            program = row[3]
+            period_begin, period_end = self.calc_periods(period, row)
+            if not response.get(program):
+                response[program] = []
+            response[program].append(models.ProgramsReportRow(
+                period_begin=period_begin,
+                period_end=period_end,
+                period_num=int(row.period),
+                amount=row.count
+            ))
+
+        return [models.ClientReport(program=program.to_model(), data=data) for program, data in response.items()]
 
     @staticmethod
     def calc_periods(period: models.Periods, row):

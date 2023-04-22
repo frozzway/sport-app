@@ -5,11 +5,6 @@ from pydantic import BaseModel
 from . import Program
 
 
-class ClientReport(BaseModel):
-    program: Program
-    booked_amount: int
-
-
 class Periods(str, enum.Enum):
     week = "week"
     month = "month"
@@ -28,6 +23,11 @@ class ProgramsReportRow(BaseModel):
     period_end: datetime.datetime
     period_num: int
     amount: int
+
+
+class ClientReport(BaseModel):
+    program: Program
+    data: list[ProgramsReportRow]
 
 
 class ProgramsReportResponse(ProgramsReport):
