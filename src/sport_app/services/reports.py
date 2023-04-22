@@ -20,7 +20,7 @@ class ReportsService:
     ):
         self.session = session
 
-    def client_report(self, client_id: int, period: models.Periods) -> list[models.ClientReport]:
+    def client_report(self, client_id: int, period: models.Periods) -> list[models.ClientReportRow]:
         """Отчёт о видах и количестве посещенных занятиях клиентом в динамике"""
         BC = tables.BookedClasses
 
@@ -50,7 +50,7 @@ class ReportsService:
                 amount=row.count
             ))
 
-        return [models.ClientReport(program=program.to_model(), data=data) for program, data in response.items()]
+        return [models.ClientReportRow(program=program.to_model(), data=data) for program, data in response.items()]
 
     @staticmethod
     def calc_periods(period: models.Periods, row):

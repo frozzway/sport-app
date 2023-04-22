@@ -2,7 +2,7 @@ from fastapi import (
     APIRouter,
     Depends,
 )
-from ..models import ClientReport, ProgramsReportResponse, ProgramsReport, Periods
+from ..models import ClientReportRow, ProgramsReportResponse, ProgramsReport, Periods
 from ..services.auth import validate_admin_access, validate_operator_access
 from ..services.reports import ReportsService
 
@@ -15,7 +15,7 @@ router = APIRouter(
 
 @router.get(
     '/client/{client_id}',
-    response_model=list[ClientReport],
+    response_model=list[ClientReportRow],
     dependencies=[Depends(validate_admin_access)],
 )
 def get_client_report(

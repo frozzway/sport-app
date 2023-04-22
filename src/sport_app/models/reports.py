@@ -25,7 +25,7 @@ class ProgramsReportRow(BaseModel):
     amount: int
 
 
-class ClientReport(BaseModel):
+class ClientReportRow(BaseModel):
     program: Program
     data: list[ProgramsReportRow]
 
