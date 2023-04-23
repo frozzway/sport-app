@@ -81,6 +81,7 @@ class ScheduleService:
                 next_week_schema.active = True
                 active_schema.active = False
                 self.session.commit()
+                return next_week_schema, None
         return active_schema, next_week_schema
 
     def _get_grid(

@@ -9,7 +9,7 @@ import datetime
 
 
 class SchemaBase(BaseModel):
-    name: str = Field(max_length=100)
+    name: str = Field(min_length=1, max_length=100)
 
 
 class SchemaCreate(SchemaBase):
@@ -19,7 +19,7 @@ class SchemaCreate(SchemaBase):
 class SchemaUpdate(BaseModel):
     name: Optional[str] = Field(max_length=100)
     active: Optional[bool] = None
-    activate_next_week: Optional[bool] = False
+    activate_next_week: Optional[bool]
 
 
 class Schema(SchemaBase):
@@ -38,7 +38,7 @@ class SchemaRecordBase(BaseModel):
 
 
 class SchemaRecordCreate(SchemaRecordBase):
-    program: Union[Program, int]
+    program: int
 
 
 class SchemaRecord(SchemaRecordBase):

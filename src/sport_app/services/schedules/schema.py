@@ -56,7 +56,7 @@ class SchemaService:
         schema = (
             self.session
             .query(tables.ScheduleSchema)
-            .filter(tables.ScheduleSchema.to_be_active_from == utils.next_mo())
+            .where(tables.ScheduleSchema.to_be_active_from.isnot(None))
             .scalar()
         )
         return schema
@@ -94,20 +94,20 @@ class SchemaService:
         if schema.active or schema.to_be_active_from:
             raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
                                 detail="Запрещается удаление активной схемы")
-        self.session.delete(schema)
+        self.session.execute(delete(tables.ScheduleSchema).filter_by(id=schema_id))
         self.session.commit()
 
     def _compare_schemas(
         self,
         schema: tables.ScheduleSchema,
-        target_schema: tables.ScheduleSchema,
+        other_schema: tables.ScheduleSchema,
         next_week=False,
     ):
         """
         Генерирует список занятий, которые отсутствуют в schema, но присутствуют в target_schema,
         передает список на снятие бронирования
         """
-        records = set(target_schema.records) - set(schema.records)
+        records = set(other_schema.records) - set(schema.records)
         self._remove_booking(records, next_week=next_week)
 
     def _remove_booking(
@@ -169,6 +169,9 @@ class SchemaService:
             if target_schema.id == active_schema.id:
                 raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
                                     detail="Не допускается деактивация схемы")
+        if data.activate_next_week is False and target_schema.id == next_week_schema.id:
+            self._compare_schemas(active_schema, target_schema, next_week=True)
+            target_schema.to_be_active_from = None
 
         # установка схемы на следующую неделю
         if data.activate_next_week:
