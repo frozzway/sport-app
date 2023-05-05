@@ -71,7 +71,7 @@ class ScheduleService:
         self.session = session
         self.schema_service = SchemaService(session)
 
-    def _validate_active_schema(self):
+    def validate_active_schema(self):
         next_week_schema = self.schema_service.next_week_schema
         active_schema = self.schema_service.active_schema
         if next_week_schema:
@@ -133,7 +133,7 @@ class ScheduleService:
                 for row in self.session.execute(stmt).all()}
 
     def construct_schedule(self, filters: dict[str, Any]) -> list[models.ScheduleRecord]:
-        active_schema, next_week_schema = self._validate_active_schema()
+        active_schema, next_week_schema = self.validate_active_schema()
         booked_classes = self._count_booked_classes(filters)
         current_week_classes = self._get_grid(active_schema, filters)
         if next_week_schema:
