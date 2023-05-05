@@ -1,5 +1,4 @@
 from pydantic import BaseSettings
-from pathlib import Path
 
 
 class Settings(BaseSettings):
@@ -14,6 +13,10 @@ class Settings(BaseSettings):
     db_host: str = 'localhost'
     db_port: str = '5432'
     db_database: str = 'sport_app'
+
+    adm_username: str = 'John Doe'
+    adm_email: str = 'johndoe@example.com'
+    adm_password: str = '123'
 
     timezone: str = 'Asia/Yekaterinburg'
 
