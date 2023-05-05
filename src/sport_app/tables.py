@@ -56,7 +56,7 @@ class Program(Base):
     paid = Column(Boolean)
     place_limit = Column(Integer, nullable=True)
     registration_opens = Column(Integer, nullable=True)
-    available_registration = Column(Boolean, default=False)
+    available_registration = Column(Boolean, default=False, nullable=False)
 
     category_obj = relationship("Category", back_populates="programs")
     instructor_obj = relationship("Instructor", back_populates="programs")
@@ -120,8 +120,8 @@ class BookedClasses(Base):
     __tablename__ = "booked_classes"
 
     id = Column(Integer, primary_key=True)
-    client = Column(Integer, ForeignKey("client.id", ondelete="CASCADE"))
-    program = Column(Integer, ForeignKey("program.id", ondelete="CASCADE"))
+    client = Column(Integer, ForeignKey("client.id", ondelete="CASCADE"), nullable=False)
+    program = Column(Integer, ForeignKey("program.id", ondelete="CASCADE"), nullable=False)
     date = Column(DateTime(timezone=True))
 
     __table_args__ = (
