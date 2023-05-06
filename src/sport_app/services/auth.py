@@ -16,7 +16,7 @@ from ..settings import settings
 from .. import models, tables
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/auth/sign-in/')
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl='api/auth/sign-in/')
 
 
 def get_current_staff(token: str = Depends(oauth2_scheme)) -> models.Staff:
