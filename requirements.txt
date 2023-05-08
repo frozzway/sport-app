@@ -1,9 +1,12 @@
 fastapi
 pydantic
-uvicorn
-sqlalchemy
-psycopg2
+uvicorn[standard]
+gunicorn
+alembic
+sqlalchemy==1.4.46
+psycopg2-binary
 python-dateutil
 python-jose[cryptography]
 passlib[bcrypt]
 python-multipart
+python-dotenv
