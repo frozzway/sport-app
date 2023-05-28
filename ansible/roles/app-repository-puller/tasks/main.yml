@@ -1,0 +1,37 @@
+- name: Copy repo key file [fastapi]
+  copy:
+    src: "{{ fastapi_code_repo_key_file }}"
+    dest: "/home/fway/.ssh/sport-app_rsa"
+    mode: '400'
+ 
+- name: Copy repo key file [angular]
+  copy:
+    src: "{{ angular_code_repo_key_file }}"
+    dest: "/home/fway/.ssh/sport-app-client_rsa"
+    mode: '400'
+
+- name: Update code from the repository [fastapi]
+  git:
+    repo: "{{ fastapi_code_repository }}"
+    dest: "{{ app_root_dir }}/sport-app"
+    accept_hostkey: yes
+    clone: yes
+    force: yes
+    update: yes
+    version: "{{ code_version }}"
+    key_file: "/home/fway/.ssh/sport-app_rsa"
+  become: yes
+
+
+- name: Update code from the repository [angular]
+  git:
+    repo: "{{ angular_code_repository }}"
+    dest: "{{ app_root_dir }}/sport-app-client"
+    accept_hostkey: yes
+    clone: yes
+    force: yes
+    update: yes
+    version: "{{ code_version }}"
+    key_file: "/home/fway/.ssh/sport-app-client_rsa"
+  become: yes
+  register: angular_repo

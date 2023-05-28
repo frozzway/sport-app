@@ -1,0 +1,21 @@
+- name: Render docker-compose.yml
+  template: src=docker-compose.yml.j2 dest="{{ app_root_dir }}/docker-compose.yml"
+
+- name: Render angular environment file
+  template: src=environment.production.ts.j2 dest="{{ app_root_dir }}/sport-app-client/src/environments/environment.production.ts"
+
+- name: Build angular application
+  command: chdir="{{ app_root_dir }}/sport-app-client" ng build --configuration=production --output-path="{{ app_root_dir }}/staticfiles/angular"
+  when: angular_repo.changed
+
+- name: Build docker image 1
+  command: chdir="{{ app_root_dir }}/sport-app" docker image build -t "{{ service_name }}_fastapi" .
+
+- name: Build docker image 2
+  command: chdir="{{ app_root_dir }}/sport-app" docker image build -t "{{ service_name }}_nginx" ./nginx
+
+- name: Run migrations
+  command: chdir="{{ app_root_dir }}" docker compose run --rm fastapi ash -c "cd /app/src/migrations && PYTHONPATH=/app/src python update.py"
+  
+- name: Deploy composition
+  command: chdir="{{ app_root_dir }}" docker compose up --detach --force-recreate

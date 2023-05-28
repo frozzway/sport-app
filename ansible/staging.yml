@@ -1,0 +1,15 @@
+- name: Deploy
+  hosts: yandexcloud
+  remote_user: fway
+  become: yes
+
+  vars_files:
+    - vars/staging.yml
+  collections:
+    - community.general.snap
+  roles:
+    - installer
+    - ansible-role-docker-master
+    - app-repository-puller
+    - nginx-config
+    - docker-runner

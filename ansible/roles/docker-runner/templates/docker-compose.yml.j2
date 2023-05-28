@@ -1,0 +1,56 @@
+version: "3.7"
+services:
+  fastapi:
+    image: "{{ service_name }}_fastapi"
+    restart: unless-stopped
+    command: 'ash -c "cd /app/src && gunicorn sport_app.app:app --bind unix:/tmp/uvicorn/uvicorn.sock --worker-class=sport_app.uvicorn.MyUvicornWorker"'
+    volumes:
+      - "{{ app_root_dir }}/staticfiles/images:/app/src/images"
+      - uvicorn-socket:/tmp/uvicorn/
+    environment:
+      angular_port: '4200'
+
+      db_host: {{ db_host }}
+      db_username: {{ db_username }}
+      db_password: {{ db_password | replace("$", "$$") }}
+      db_port: {{ db_port }}
+      db_database: {{ db_database }}
+
+      jwt_secret: {{ jwt_secret | replace("$", "$$") }}
+
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:14-alpine
+    restart: always
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: {{ db_password }}
+      POSTGRES_USER: {{ db_username }}
+      POSTGRES_DB: {{ db_database }}
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "{{ db_username }}", '-d', '{{ db_database }}']
+      interval: 3s
+
+
+  nginx:
+    image: "{{ service_name }}_nginx"
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - uvicorn-socket:/tmp/uvicorn/
+      - /etc/letsencrypt/live/{{ domain }}:/etc/letsencrypt/live/{{ domain }}
+      - /etc/letsencrypt/archive/{{ domain }}:/etc/letsencrypt/archive/{{ domain }}
+      - {{ app_root_dir }}/staticfiles:/staticfiles
+      - {{ app_root_dir }}/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - {{ app_root_dir }}/nginx/conf.d:/etc/nginx/conf.d
+    depends_on:
+      - fastapi
+
+volumes:
+  postgres-data:
+  uvicorn-socket:

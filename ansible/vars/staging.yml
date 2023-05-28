@@ -1,0 +1,17 @@
+app_root_dir: /app
+service_name: service
+
+fastapi_code_repository: git@github.com:FrozzWay/sport-app.git
+code_version: master
+fastapi_code_repo_key_file: /home/user/.ssh/sport-app_rsa
+angular_code_repository: git@github.com:FrozzWay/sport-app-client.git
+angular_code_repo_key_file: /home/user/.ssh/sport-app-client_rsa
+
+db_host: postgres
+db_username: admin
+db_password: to_be_replaced_with_vault
+db_port: 5432
+db_database: sport-app
+jwt_secret: to_be_replaced_with_vault
+
+domain: okunevad.cloud
