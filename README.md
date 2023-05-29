@@ -1,8 +1,8 @@
 # SportApp - FastAPI & Angular приложение для фитнес центра
-Выполнялось в рамках дипломной работы бакалавра ЮУрГУ.
-Бэкенд: **FastAPI** &  **SQLAlchemy**
-Фронт: **Angular 15**
-Деплой на Yandex Cloud через  **Ansible** и **docker-compose**
+Выполнялось в рамках дипломной работы бакалавра ЮУрГУ.<br>
+Бэкенд: **FastAPI** &  **SQLAlchemy**<br>
+Фронт: **Angular 15**<br>
+Деплой на Yandex Cloud через  **Ansible** и **docker-compose**<br>
 
 [Репозиторий клиента](https://github.com/FrozzWay/sport-app-client)
 
@@ -18,6 +18,8 @@
 
 ## Конечный результат
 ### Редактирование схемы
-![ezgif-1-37e3cd12b6](https://github.com/FrozzWay/sport-app/assets/59840795/c9ed3b58-a23d-462a-acf3-b74363bb9e74)
+
+![ezgif-1-37e3cd12b6](https://user-images.githubusercontent.com/59840795/241748033-408dca3a-87da-45ce-93db-00dcaf6680fa.gif)
+
 ### Запись клиентов
-![bandicam 2023-05-28 23-39-41-840](https://github.com/FrozzWay/sport-app/assets/59840795/ab3e8c05-14f8-4ae9-bfa0-0996fa2ca015)
+![bandicam 2023-05-28 23-39-41-840](https://lh3.googleusercontent.com/u/1/drive-viewer/AFGJ81qf4M7C10UaJvmuKtDlEhZnzRTY2R58-DOdaj7_0wx4ZZPqmwhdPkV0yptB_lML_fmzc1MuV8fHHas_A8mOxaE9_ezZ8g=w1920-h937)
