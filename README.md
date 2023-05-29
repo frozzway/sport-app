@@ -18,8 +18,7 @@
 
 ## Конечный результат
 ### Редактирование схемы
-
-![ezgif-1-37e3cd12b6](https://user-images.githubusercontent.com/59840795/241748033-408dca3a-87da-45ce-93db-00dcaf6680fa.gif)
+<img src="https://user-images.githubusercontent.com/59840795/241748033-408dca3a-87da-45ce-93db-00dcaf6680fa.gif"  width="700"/>
 
 ### Запись клиентов
-![bandicam 2023-05-28 23-39-41-840](https://lh3.googleusercontent.com/u/1/drive-viewer/AFGJ81qf4M7C10UaJvmuKtDlEhZnzRTY2R58-DOdaj7_0wx4ZZPqmwhdPkV0yptB_lML_fmzc1MuV8fHHas_A8mOxaE9_ezZ8g=w1920-h937)
+<img src="https://lh3.googleusercontent.com/u/1/drive-viewer/AFGJ81qf4M7C10UaJvmuKtDlEhZnzRTY2R58-DOdaj7_0wx4ZZPqmwhdPkV0yptB_lML_fmzc1MuV8fHHas_A8mOxaE9_ezZ8g=w1920-h937"  width="700"/>
