@@ -4,7 +4,8 @@
 Фронт: **Angular 15**<br>
 Деплой на Yandex Cloud через  **Ansible** и **docker-compose**<br>
 
-[Репозиторий клиента](https://github.com/FrozzWay/sport-app-client)
+[Репозиторий клиента](https://github.com/FrozzWay/sport-app-client)<br>
+[Текст дипломной работы](https://drive.google.com/file/d/1QzG_IEpABG-ZoW9tSAMWVD-IctPRHm_p/view?usp=sharing)
 
 ### Функционал
 Приложение динамически формирует расписание занятий (тренировочных программ) на основе редактируемых схем и отображает его на две недели вперед, позволяет вести базу инструкторов, клиентов, записывать их на занятия, отслеживать посещаемость с помощью отчетов.
