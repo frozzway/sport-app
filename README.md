@@ -22,4 +22,4 @@
 <img src="https://user-images.githubusercontent.com/59840795/241748033-408dca3a-87da-45ce-93db-00dcaf6680fa.gif"  width="700"/>
 
 ### Запись клиентов
-<img src="https://lh3.googleusercontent.com/u/1/drive-viewer/AFGJ81qf4M7C10UaJvmuKtDlEhZnzRTY2R58-DOdaj7_0wx4ZZPqmwhdPkV0yptB_lML_fmzc1MuV8fHHas_A8mOxaE9_ezZ8g=w1920-h937"  width="700"/>
+<img src="https://user-images.githubusercontent.com/59840795/250643841-f5e3418f-1f28-4c59-ae82-2590a38557e5.gif"  width="700"/>
