@@ -1,4 +1,5 @@
 import pytest
+from unittest.mock import call
 from dateutil import relativedelta as rd
 from fastapi.testclient import TestClient
 from pytest_mock import MockerFixture
@@ -81,7 +82,7 @@ def test_include_records_in_schema(session_db, schema_with_records, records):
     assert all(rec in records_ids for rec in records_to_include)
 
 
-def test_exclude_records_from_schema(session_db, schema_with_records):
+def test_exclude_records_from_schema_removes_records(session_db, schema_with_records):
     records_to_exclude = [r.id for r in schema_with_records.records][::2]
     response = client.request('delete', f'/api/schedule/schema/{schema_with_records.id}/records', json=records_to_exclude)
     session_db.expire(schema_with_records)
@@ -91,8 +92,30 @@ def test_exclude_records_from_schema(session_db, schema_with_records):
     assert all(rec not in records_ids for rec in records_to_exclude)
 
 
-# def test_excluding_records_from_schema_cancels_future_booking(session_db, schema_with_records):
-#     pass
+def test_excluding_records_from_schema_cancels_future_booking_on_active_schema(session_db, schema_with_records, mocker: MockerFixture):
+    records = [r.id for r in schema_with_records.records]
+    schema_service = services.SchemaService(session_db)
+
+    method = mocker.patch.object(services.SchemaService, '_remove_booking', autospec=True)
+    schema_service.exclude_records_from_schema_(schema_with_records.id, records)
+
+    method.assert_has_calls([
+     call(schema_service, records),
+     call(schema_service, records, next_week=True)
+    ])
+
+
+def test_excluding_records_from_schema_cancels_future_booking_on_nw_schema(session_db, schema_with_records, mocker: MockerFixture):
+    schema_with_records.to_be_active_from = utils.next_mo()
+    schema_with_records.active = False
+    session_db.commit()
+    records = [r.id for r in schema_with_records.records]
+    schema_service = services.SchemaService(session_db)
+
+    method = mocker.patch.object(services.SchemaService, '_remove_booking', autospec=True)
+    schema_service.exclude_records_from_schema_(schema_with_records.id, records)
+
+    method.assert_called_once_with(schema_service, records, next_week=True)
 
 
 def test_method_remove_book_rows(session_db, booked_rows):
@@ -118,8 +141,8 @@ def test_method_remove_booking_on_records(session_db, booked_rows_on_records, ne
                 if row.date + interval > utils.now()]
     schema_service = services.SchemaService(session_db)
 
-    remove_method = mocker.patch.object(services.SchemaService, '_remove_booked_rows', autospec=True)
+    method = mocker.patch.object(services.SchemaService, '_remove_booked_rows', autospec=True)
     schema_service._remove_booking(records, next_week=next_week)
 
-    remove_method.assert_called_once_with(schema_service, expected)
+    method.assert_called_once_with(schema_service, expected)
 
